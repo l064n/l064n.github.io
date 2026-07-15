@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Obsidian Dark Palette (Strict) ─────────────────────── */
+
+:root {
+  --background: #0A0A0A;
+  --surface: #111111;
+  --surface-elevated: #1A1A1A;
+  --border: #222222;
+  --border-hover: #333333;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A3A3A3;
+  --text-muted: #737373;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* ── Scrollbar Styling (Webkit) ───────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+/* ── Selection Styling ─────────────────────────────────────── */
+
+::selection {
+  background-color: rgba(245, 158, 11, 0.3);
+  color: inherit;
+}
+
+/* ── Cursor Blink Animation ─────────────────────────────────── */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── MDX Custom Prose Styling ────────────────────────────────── */
+
+.prose-custom {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.prose-custom h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-custom h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-custom h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-custom p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose-custom a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-custom a:hover {
+  color: var(--accent-hover);
+}
+
+.prose-custom code {
+  background-color: var(--surface-elevated);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.875em;
+  color: var(--text-secondary);
+}
+
+.prose-custom pre {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.prose-custom pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: #e4e4e4;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.prose-custom ul,
+.prose-custom ol {
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose-custom li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.prose-custom blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+
+.prose-custom hr {
+  border-color: var(--border);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.prose-custom table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose-custom th,
+.prose-custom td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose-custom th {
+  background-color: var(--surface-elevated);
+  font-weight: 600;
+}
+
+.prose-custom strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}

@@ -1,0 +1,73 @@
+---
+title: Legacy Hardware Recapping Guide
+date: 2026-02-20
+tags: [Hardware, Restoration, Electronics]
+summary: Step-by-step walkthrough for capacitor replacement on vintage logic boards, based on a 1989 Macintosh Portable restoration project.
+---
+
+## Why Recap?
+
+Electrolytic capacitors degrade over time — the electrolyte evaporates, ESR increases, and eventually components fail. For vintage hardware, this is the #1 cause of "dead" boards. A full recap (capacitor replacement) can revive machines decades past their original design life.
+
+## Tools Required
+
+| Tool | Purpose |
+|------|---------|
+| Hakko FX-888D Soldering Station | Temperature-controlled desoldering |
+| Desoldering Pump (Weller S10) | Bulk lead removal |
+| Solder Wick (0.062") | Trace-safe cleanup |
+| Multimeter (True RMS) | ESR testing and continuity |
+| Magnifying Lamp (2x) | Visual inspection of 0603 components |
+
+## The Process
+
+### 1. Board Inspection
+
+Start with a visual examination under magnification. Look for:
+- Bulging tops on axial capacitors
+- Corrosion around capacitor leads
+- Darkened PCB near heat sources
+- Previous repair attempts (non-OEM parts)
+
+### 2. Desoldering Technique
+
+For through-hole axial capacitors on vintage boards:
+
+```
+Step 1: Apply soldering iron to pad + lead junction (3 sec max)
+Step 2: Apply wick to melt and absorb old solder
+Step 3: Repeat until pad is clear
+Step 4: Use pump for stubborn leads
+Step 5: Verify with multimeter continuity test
+```
+
+**Critical:** Do not exceed 350°C on the iron tip. Vintage PCBs use single-layer FR-4 that delaminates easily.
+
+### 3. Replacement Selection
+
+| Original Spec | Replacement | Notes |
+|---------------|-------------|-------|
+| 100µF 16V | 100µF 25V Nichicon PW | Higher voltage rating for headroom |
+| 47µF 10V | 47µF 16V Panasonic FC | Low-ESR type preferred |
+| 10µF 50V | 10µF 63V Rubycon ZL | Original spec adequate but upgrade recommended |
+
+### 4. Post-Recap Testing
+
+After all replacements:
+1. Visual inspection under magnification — no bridges, cold joints
+2. Continuity test across all replaced pads
+3. Power-on with current-limited supply (500mA)
+4. Monitor for heat spots on new components
+5. Full functional test at operating temperature
+
+## Macintosh Portable Specifics
+
+The 1989 Macintosh Portable has approximately 80 electrolytic capacitors across its four logic boards. The mainboard alone contains 47 capacitors, with the CRT driver board containing another 20+.
+
+<Callout type="info">
+The SCSI connector on the Portable is a known failure point. While recapping, inspect the SCSI header pins for corrosion. Clean with isopropyl alcohol and a soft brush if needed.
+</Callout>
+
+## Results
+
+After a full recap of all four boards, the Macintosh Portable boots to System 7.1.2 from the original SCSI hard drive. SCART composite output is clean, and the 10.4" transflective LCD displays properly at room temperature.

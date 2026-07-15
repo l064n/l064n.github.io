@@ -1,0 +1,35 @@
+import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import './globals.css';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500'],
+  variable: '--font-jetbrains-mono',
+});
+
+export const metadata: Metadata = {
+  title: 'Logan Matthew Phillips \u2014 Systems Integration Engineer',
+  description: 'Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-background text-zinc-300 min-h-screen flex flex-col antialiased">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}

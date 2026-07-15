@@ -1,0 +1,121 @@
+---
+title: Nix-Darwin and My Unix Toolchain
+date: 2026-02-10
+tags: [Unix, macOS, DevOps]
+summary: Documenting my transition to a fully reproducible macOS development environment using Nix-Darwin, Ghostty, Z-shell with Starship prompt, and Zoxide for directory navigation.
+---
+
+## Why Nix on macOS?
+
+After years of managing dotfiles manually across multiple M1 Max MacBook Pro setups (my current rig has 64GB unified memory), I finally bit the bullet and migrated to **Nix-Darwin** for fully reproducible environment management. The goal: zero-config machine setup from bare metal in under an hour.
+
+## Core Stack
+
+My daily driver toolchain on macOS + Nix-Darwin:
+
+```
+Terminal:    Ghostty (GPU-accelerated, ~60fps rendering)
+Shell:       Z-shell 5.9+ with the following plugins:
+               - Starship prompt (cross-shell, instant render)
+               - Zoxide (smart cd replacement, learns your habits)
+               - zsh-autosuggestions
+               - syntax highlighting via zsh-syntax-highlighting
+
+Package Mgmt: Nix-Darwin (home-manager + darwin module)
+Editor:      Neovim 0.9+ with LazyVim config
+Knowledge:   Obsidian (migrating notes from OneNote since 2017)
+```
+
+## Starship Prompt Configuration
+
+Starship replaced my old Powerlevel10k setup and renders in a fraction of the time. My key customizations:
+
+```toml
+# ~/.config/starship.toml
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nix_shell\
+$cmd_duration\
+$line_break\
+$character"""
+
+[directory]
+style = "bold cyan"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_status]
+conflicted = "🏳"
+ahead = "⬆️${count}"
+behind = "⬇️${count}"
+modified = "!"
+staged = '[++\($count\)](green)'
+renamed = "➙"
+deleted = "🗑"
+
+[nix_shell]
+symbol = "❄️ "
+format = 'via [$symbol$state](bold blue) '
+```
+
+## Zoxide — Smarter Than `cd`
+
+Zoxide replaces the traditional `cd` command with a machine-learning-based directory jumper. After a week of use, it learns your most-frequented directories and lets you jump to them with partial matches:
+
+```bash
+# Instead of: cd ~/Documents/Project_Three/content/notes
+$ z xi        # jumps to most frequent dir matching "xi" → ~/Projects
+$ z project   # jumps to Project_Three workspace
+$ z notes     # jumps directly into content/notes/
+```
+
+The frequency scoring is stored in `~/.local/state/zoxide/zoxide.db` and syncs across machines via my Nix flake.
+
+## Obsidian Migration from OneNote
+
+I've been collecting technical notes since 2017, originally in Microsoft OneNote. The migration to Obsidian involved:
+
+1. Exporting all OneNote notebooks as `.one` files
+2. Converting via Python script to Markdown
+3. Importing into Obsidian vault with folder structure preserved
+4. Tagging and linking to reconstruct the knowledge graph
+5. Setting up sync via iCloud for cross-device access
+
+The migration preserved all hyperlinks and embedded attachments, though rich formatting (tables, colored highlights) required manual cleanup.
+
+## Nix-Darwin Flake Structure
+
+My flake for the M1 Max MacBook Pro:
+
+```nix
+# flake.nix (abbreviated)
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, darwin, home-manager }: {
+    darwinConfigurations."logans-mbp" = darwin.lib.darwinSystem {
+      system = "aarch64-darwin";
+      modules = [ ./darwin-config ];
+    };
+  };
+}
+```
+
+## Key Lessons
+
+- **Reproducibility wins**: New machine setup takes ~45 minutes (download + build + restore data)
+- **Ghostty matters**: The GPU-accelerated terminal at 60fps makes the entire system feel more responsive
+- **Starship + Zoxide = instant productivity**: The prompt renders instantly and `z` replaces 90% of `cd` usage
+- **Nix flakes are stable**: After 6 months of daily use, zero rollbacks needed
