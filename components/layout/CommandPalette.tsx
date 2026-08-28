@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CommandDialog,
@@ -18,6 +18,23 @@ export interface PaletteProject {
   categories: string[];
 }
 
+export interface PaletteNote {
+  slug: string;
+  title: string;
+  date: string;
+  tags: string[];
+  summary?: string;
+  /** Plain-text body excerpt for full-text search. */
+  excerpt: string;
+}
+
+interface CommandPaletteProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  projects?: PaletteProject[];
+  notes?: PaletteNote[];
+}
+
 const pageCommands = [
   { value: '/', label: 'Dashboard', icon: Globe },
   { value: '/projects', label: 'Projects', icon: FolderOpen },
@@ -25,28 +42,32 @@ const pageCommands = [
   { value: '/experience', label: 'Experience', icon: Briefcase },
 ];
 
-export function CommandPalette({ projects = [] }: { projects?: PaletteProject[] }) {
-  const [open, setOpen] = useState(false);
+export function CommandPalette({
+  open,
+  onOpenChange,
+  projects = [],
+  notes = [],
+}: CommandPaletteProps) {
   const router = useRouter();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setOpen((o) => !o);
+        onOpenChange(!open);
       }
     };
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, []);
+  }, [open, onOpenChange]);
 
   const runCommand = (url: string) => {
-    setOpen(false);
+    onOpenChange(false);
     router.push(url);
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Search pages, projects, notes..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
@@ -73,6 +94,22 @@ export function CommandPalette({ projects = [] }: { projects?: PaletteProject[] 
             >
               <FolderOpen className="mr-2 h-4 w-4 text-zinc-500" />
               <span>{project.title}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandGroup heading="Notes">
+          {notes.map((note) => (
+            <CommandItem
+              key={note.slug}
+              value={`${note.title} ${note.tags.join(' ')} ${note.summary ?? ''} ${note.excerpt}`.toLowerCase()}
+              onSelect={() => runCommand(`/notes/${note.slug}`)}
+            >
+              <FileText className="mr-2 h-4 w-4 shrink-0 text-zinc-500" />
+              <span className="truncate">{note.title}</span>
+              <span className="ml-auto shrink-0 font-mono text-[10px] text-zinc-600">
+                {note.date.slice(0, 7)}
+              </span>
             </CommandItem>
           ))}
         </CommandGroup>

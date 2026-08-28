@@ -1,9 +1,15 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { MotionConfig } from 'framer-motion';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { getAllProjectsMetadata } from '@/lib/projects';
+import { getAllPostsMetadata } from '@/lib/mdx';
+
+export const viewport: Viewport = {
+  themeColor: '#09090b',
+};
 
 const inter = Inter({
   subsets: ['latin'],
@@ -51,18 +57,33 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const paletteProjects = getAllProjectsMetadata().map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    categories: p.categories,
+  }));
+
+  const paletteNotes = getAllPostsMetadata().map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    date: p.date,
+    tags: p.tags,
+    summary: p.summary,
+    excerpt: p.bodyOnly
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/[#>*_`~[\]()!|-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .slice(0, 1200),
+  }));
+
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-background text-zinc-300 min-h-screen flex flex-col antialiased">
-        <Header
-          projects={getAllProjectsMetadata().map((p) => ({
-            slug: p.slug,
-            title: p.title,
-            categories: p.categories,
-          }))}
-        />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <MotionConfig reducedMotion="user">
+          <Header projects={paletteProjects} notes={paletteNotes} />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </MotionConfig>
       </body>
     </html>
   );

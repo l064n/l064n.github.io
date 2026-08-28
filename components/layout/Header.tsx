@@ -1,13 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CommandPalette, type PaletteProject } from '@/components/layout/CommandPalette';
+import { CommandPalette, type PaletteProject, type PaletteNote } from '@/components/layout/CommandPalette';
 import { navLinks } from '@/lib/data';
-import { Keyboard, Globe } from 'lucide-react';
+import { Keyboard, Search } from 'lucide-react';
 
-export function Header({ projects }: { projects?: PaletteProject[] }) {
+interface HeaderProps {
+  projects?: PaletteProject[];
+  notes?: PaletteNote[];
+}
+
+export function Header({ projects = [], notes = [] }: HeaderProps) {
   const pathname = usePathname();
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbParts = [
@@ -20,7 +27,12 @@ export function Header({ projects }: { projects?: PaletteProject[] }) {
 
   return (
     <>
-      <CommandPalette projects={projects} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        projects={projects}
+        notes={notes}
+      />
       <header className="sticky top-0 z-50 border-b border-[#1a1a1a]/60 bg-[#09090b]/70 backdrop-blur-xl">
         <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Breadcrumb Nav */}
@@ -63,11 +75,17 @@ export function Header({ projects }: { projects?: PaletteProject[] }) {
               })}
             </nav>
 
-            {/* Command palette shortcut */}
-            <kbd className="flex items-center gap-1 rounded-md border border-[#1a1a1a] bg-[#111]/50 px-2 py-1 text-[10px] font-mono text-zinc-600 transition-colors hover:text-zinc-400">
-              <Keyboard className="h-3 w-3" />
-              <span>⌘K</span>
-            </kbd>
+            {/* Search trigger — visible on mobile (no ⌘K), kbd on desktop */}
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              className="flex items-center gap-1.5 rounded-md border border-[#1a1a1a] bg-[#111]/50 px-2 py-1 text-[10px] font-mono text-zinc-600 transition-colors hover:border-[#2a2a2a] hover:text-zinc-400"
+              aria-label="Open search"
+            >
+              <Search className="h-3 w-3" />
+              <span className="hidden sm:inline">search</span>
+              <span className="hidden sm:inline text-zinc-700">⌘K</span>
+            </button>
           </div>
         </div>
       </header>
