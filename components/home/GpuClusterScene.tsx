@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -94,7 +94,30 @@ interface DragState {
   velY: number;
 }
 
-function Cluster({ drag }: { drag: React.MutableRefObject<DragState> }) {
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return reduced;
+}
+
+function Cluster({
+  drag,
+  reducedMotion,
+}: {
+  drag: React.MutableRefObject<DragState>;
+  reducedMotion: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
 
   // 2x2 card layout
@@ -134,7 +157,15 @@ function Cluster({ drag }: { drag: React.MutableRefObject<DragState> }) {
       d.rotX = Math.max(-0.9, Math.min(0.9, d.rotX));
     }
 
-    // slow idle rotation + gentle float; parallax only when not dragging
+    // slow idle rotation + gentle float; parallax only when not dragging.
+    // With reduced motion: static pose, no idle drift — drag still works.
+    if (reducedMotion) {
+      group.current.rotation.y = d.rotY;
+      group.current.rotation.x = -0.35 + d.rotX;
+      group.current.position.y = 0;
+      return;
+    }
+
     const parallax = d.dragging ? 0 : 1;
     group.current.rotation.y =
       Math.sin(t * 0.12) * 0.25 * parallax + pointer.x * 0.35 * parallax + d.rotY;
@@ -158,10 +189,11 @@ function Cluster({ drag }: { drag: React.MutableRefObject<DragState> }) {
       {cards.map(({ p, accent }, i) => (
         <GpuCard key={i} position={p} accent={accent} />
       ))}
-      {/* data pulses */}
-      {cards.map(({ p }, i) => (
-        <DataPulse key={i} from={p} to={hub} offset={i * 0.25} />
-      ))}
+      {/* data pulses (omitted under reduced motion) */}
+      {!reducedMotion &&
+        cards.map(({ p }, i) => (
+          <DataPulse key={i} from={p} to={hub} offset={i * 0.25} />
+        ))}
     </group>
   );
 }
@@ -176,6 +208,8 @@ export function GpuClusterScene() {
     velX: 0,
     velY: 0,
   });
+
+  const reducedMotion = usePrefersReducedMotion();
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
@@ -220,7 +254,7 @@ export function GpuClusterScene() {
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <Cluster drag={drag} />
+        <Cluster drag={drag} reducedMotion={reducedMotion} />
       </Canvas>
     </div>
   );
