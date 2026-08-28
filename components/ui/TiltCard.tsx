@@ -39,7 +39,7 @@ export function TiltCard({ children, className = '', maxTilt = 7, glare = true }
         }
       });
     },
-    [maxTilt, glare]
+    [maxTilt]
   );
 
   const handleLeave = useCallback(() => {

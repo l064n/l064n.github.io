@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { CommandPalette, type PaletteProject, type PaletteNote } from '@/components/layout/CommandPalette';
 import { navLinks } from '@/lib/data';
-import { Keyboard, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 interface HeaderProps {
   projects?: PaletteProject[];
