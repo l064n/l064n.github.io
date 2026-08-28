@@ -33,6 +33,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      # GitHub Pages only serves extensionless URLs from directory index files.
+      # Convert out/foo.html -> out/foo/index.html so /portfolio-three/foo resolves.
+      - name: Generate directory index files
+        run: |
+          find out -name '*.html' -not -name 'index.html' -not -name '404.html' | while read -r f; do
+            dir=$(dirname "$f")
+            base=$(basename "$f" .html)
+            mkdir -p "$dir/$base"
+            cp "$f" "$dir/$base/index.html"
+          done
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
