@@ -84,9 +84,18 @@ function DataPulse({
   );
 }
 
-function Cluster() {
+interface DragState {
+  dragging: boolean;
+  lastX: number;
+  lastY: number;
+  rotX: number;
+  rotY: number;
+  velX: number;
+  velY: number;
+}
+
+function Cluster({ drag }: { drag: React.MutableRefObject<DragState> }) {
   const group = useRef<THREE.Group>(null);
-  const target = useRef({ x: 0, y: 0 });
 
   // 2x2 card layout
   const cards = useMemo(
@@ -114,12 +123,24 @@ function Cluster() {
   useFrame(({ clock, pointer }) => {
     if (!group.current) return;
     const t = clock.elapsedTime;
-    // slow idle rotation + gentle float
-    group.current.rotation.y = Math.sin(t * 0.12) * 0.25 + pointer.x * 0.35;
-    group.current.rotation.x = -0.35 + Math.cos(t * 0.1) * 0.05 - pointer.y * 0.2;
+    const d = drag.current;
+
+    // inertia after release
+    if (!d.dragging) {
+      d.rotX += d.velX;
+      d.rotY += d.velY;
+      d.velX *= 0.95;
+      d.velY *= 0.95;
+      d.rotX = Math.max(-0.9, Math.min(0.9, d.rotX));
+    }
+
+    // slow idle rotation + gentle float; parallax only when not dragging
+    const parallax = d.dragging ? 0 : 1;
+    group.current.rotation.y =
+      Math.sin(t * 0.12) * 0.25 * parallax + pointer.x * 0.35 * parallax + d.rotY;
+    group.current.rotation.x =
+      -0.35 + Math.cos(t * 0.1) * 0.05 * parallax - pointer.y * 0.2 * parallax + d.rotX;
     group.current.position.y = Math.sin(t * 0.5) * 0.06;
-    target.current.x = pointer.x;
-    target.current.y = pointer.y;
   });
 
   return (
@@ -146,15 +167,60 @@ function Cluster() {
 }
 
 export function GpuClusterScene() {
+  const drag = useRef<DragState>({
+    dragging: false,
+    lastX: 0,
+    lastY: 0,
+    rotX: 0,
+    rotY: 0,
+    velX: 0,
+    velY: 0,
+  });
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    d.dragging = true;
+    d.lastX = e.clientX;
+    d.lastY = e.clientY;
+    d.velX = 0;
+    d.velY = 0;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d.dragging) return;
+    const dx = e.clientX - d.lastX;
+    const dy = e.clientY - d.lastY;
+    d.lastX = e.clientX;
+    d.lastY = e.clientY;
+    d.rotY += dx * 0.006;
+    d.rotX = Math.max(-0.9, Math.min(0.9, d.rotX + dy * 0.006));
+    d.velY = dx * 0.0054;
+    d.velX = dy * 0.0054;
+  };
+
+  const endDrag = () => {
+    drag.current.dragging = false;
+  };
+
   return (
-    <div className="pointer-events-auto h-full w-full" aria-hidden>
+    <div
+      className="pointer-events-auto h-full w-full cursor-grab active:cursor-grabbing"
+      style={{ touchAction: 'none' }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      aria-hidden
+    >
       <Canvas
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.4, 5.2], fov: 42 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <Cluster />
+        <Cluster drag={drag} />
       </Canvas>
     </div>
   );
