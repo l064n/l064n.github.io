@@ -19,21 +19,25 @@ export function Footer() {
           {/* Social Links */}
           <div className="flex items-center gap-3">
             <Link
-              href="#"
+              href="https://github.com/l064n"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-md border border-[#1a1a1a] bg-[#111]/50 p-2 text-zinc-600 transition-all hover:border-zinc-700 hover:text-zinc-300 hover:bg-[#151515]"
               aria-label="GitHub"
             >
               <Github className="size-4" />
             </Link>
             <Link
-              href="#"
+              href="https://www.linkedin.com/in/loganmphillips/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-md border border-[#1a1a1a] bg-[#111]/50 p-2 text-zinc-600 transition-all hover:border-zinc-700 hover:text-zinc-300 hover:bg-[#151515]"
               aria-label="LinkedIn"
             >
               <Linkedin className="size-4" />
             </Link>
             <Link
-              href="mailto:logan@example.com"
+              href="mailto:phillips.logan.sc@gmail.com"
               className="rounded-md border border-[#1a1a1a] bg-[#111]/50 p-2 text-zinc-600 transition-all hover:border-zinc-700 hover:text-zinc-300 hover:bg-[#151515]"
               aria-label="Email"
             >
