@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import type { ProjectFrontmatter } from '@/content/projects/project-schema';
-import { mdxComponents, parseFrontmatter } from '@/lib/mdx';
+import { parseFrontmatter } from '@/lib/mdx';
+import { mdxComponents } from '@/lib/mdx-components';
 
 const projectsDirectory = path.join(process.cwd(), 'content/projects');
 

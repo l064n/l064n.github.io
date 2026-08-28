@@ -2,8 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import type { PostFrontmatter } from '@/content/notes/frontmatter-schema';
-import { Callout } from '@/components/mdx/Callout';
-import { CustomCodeBlock } from '@/components/mdx/CustomCodeBlock';
+import { mdxComponents } from '@/lib/mdx-components';
 
 const notesDirectory = path.join(process.cwd(), 'content/notes');
 
@@ -66,12 +65,6 @@ export function getPostMetadata(slug: string): PostFrontmatter {
 
   return metadata as unknown as PostFrontmatter;
 }
-
-/** MDX components map — injects custom Callout and CodeBlock. */
-export const mdxComponents = {
-  Callout,
-  CustomCodeBlock,
-};
 
 /** Compile MDX content with custom component injection. */
 export async function getPost(slug: string) {

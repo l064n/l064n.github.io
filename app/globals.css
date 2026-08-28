@@ -273,6 +273,11 @@ body::after {
   font-size: var(--text-base);
 }
 
+/* Anchor offset for TOC jumps (clears the sticky header) */
+.prose-custom :is(h1, h2, h3, h4) {
+  scroll-margin-top: 5rem;
+}
+
 .prose-custom h1 {
   font-size: var(--text-3xl);
   font-weight: 600;
