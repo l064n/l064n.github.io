@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, ChevronRight } from 'lucide-react';
@@ -8,6 +9,26 @@ import { getAllPostSlugs, getPost } from '@/lib/mdx';
 
 export function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  let title = 'Note';
+  let description = '';
+  try {
+    const post = await getPost(slug);
+    title = post.frontmatter?.title ?? title;
+    description = post.frontmatter?.summary ?? '';
+  } catch {
+    // notFound() is handled by the page itself
+  }
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/notes/${slug}`,
+    },
+  };
 }
 
 interface Props {
@@ -56,7 +77,11 @@ export default async function NotePage({ params }: Props) {
           {post.frontmatter.tags && (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {post.frontmatter.tags.map((tag) => (
-                <TechPill key={tag} label={tag} />
+                <TechPill
+                  key={tag}
+                  label={tag}
+                  href={`/notes/tag/${encodeURIComponent(tag)}`}
+                />
               ))}
             </div>
           )}

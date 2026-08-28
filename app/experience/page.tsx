@@ -1,6 +1,15 @@
 import { experienceTimeline, physicalToolkit } from '@/lib/data';
 import { Briefcase, Wrench, Gauge, Cpu, Bike } from 'lucide-react';
 
+export const metadata = {
+  title: 'Experience',
+  description:
+    'Career timeline from embedded systems at Monarch Tractor to autonomous vehicle infrastructure at Zoox, plus the physical toolkit used daily.',
+  alternates: {
+    canonical: '/experience',
+  },
+};
+
 const iconMap: Record<string, React.ReactNode> = {
   Soldering: <Wrench className="h-4 w-4 text-zinc-500" />,
   Measurement: <Gauge className="h-4 w-4 text-zinc-500" />,
