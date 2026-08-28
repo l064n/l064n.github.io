@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
         run: npm run build
 
       # GitHub Pages only serves extensionless URLs from directory index files.
-      # Convert out/foo.html -> out/foo/index.html so /portfolio-three/foo resolves.
+      # Convert out/foo.html -> out/foo/index.html so /foo resolves.
       - name: Generate directory index files
         run: |
           find out -name '*.html' -not -name 'index.html' -not -name '404.html' | while read -r f; do
@@ -52,13 +52,5 @@ jobs:
         with:
           path: out
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4

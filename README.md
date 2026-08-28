@@ -3,9 +3,9 @@
 Personal website & portfolio for **Logan Matthew Phillips** — Systems Integration Engineer.
 Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.
 
-**Live:** https://l064n.github.io/portfolio-three/
+**Live:** https://l064n.github.io/
 
-[![Deploy to GitHub Pages](https://github.com/l064n/portfolio-three/actions/workflows/deploy.yml/badge.svg)](https://github.com/l064n/portfolio-three/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/l064n/l064n.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/l064n/l064n.github.io/actions/workflows/deploy.yml)
 
 ---
 
@@ -37,8 +37,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/portfolio-three/ — the app uses `basePath: '/portfolio-three'`
-to match its GitHub Pages URL.
+Open http://localhost:3000 — the app is served from the root (this is a
+GitHub Pages **user site**, i.e. the repo is named `l064n.github.io`).
 
 ### Scripts
 
@@ -79,6 +79,9 @@ Project_Three/
 └── .github/workflows/deploy.yml    # GitHub Pages deployment
 ```
 
+> The previous site (2020, Bootstrap "Creative" template) was archived as the
+> git tag `legacy-site-2020` in this repo before being replaced.
+
 ## Content
 
 Notes live in `content/notes/` as `.mdx` files. Each file begins with simple
@@ -104,17 +107,6 @@ Body content. Custom components available:
 Site content (projects, status metrics, experience timeline, navigation) is
 defined in [`lib/data.ts`](lib/data.ts).
 
-## Deployment
-
-The site is a **static export** (`output: 'export'` in `next.config.js`)
-deployed to GitHub Pages via Actions on every push to `main`:
-
-1. Build with `next build` (emits `out/`)
-2. Upload the artifact with `actions/upload-pages-artifact`
-3. Deploy with `actions/deploy-pages`
-
-- Workflow: [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-- Pages settings: build type **Workflow**, source branch `main`
 
 ### Local production build
 
