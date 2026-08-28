@@ -85,6 +85,55 @@ function DataPulse({
   );
 }
 
+/** Giant ghosted name in 3D space behind the cluster. */
+function NameBackdrop() {
+  const texture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2000;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d')!;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.anisotropy = 4;
+
+    // Resolve the self-hosted Inter family (next/font hashes the name).
+    let family = 'Inter, system-ui, sans-serif';
+    try {
+      const probe = document.createElement('span');
+      probe.style.fontFamily = 'var(--font-inter)';
+      probe.style.display = 'none';
+      document.body.appendChild(probe);
+      const resolved = getComputedStyle(probe).fontFamily;
+      if (resolved) family = resolved;
+      document.body.removeChild(probe);
+    } catch {
+      /* keep fallback stack */
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `500 220px ${family}`;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '10px';
+      ctx.fillStyle = '#fafafa';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Logan Phillips', canvas.width / 2, canvas.height / 2);
+      tex.needsUpdate = true;
+    };
+
+    draw();
+    // Redraw once webfonts are ready (the first draw may use the fallback).
+    if (document.fonts?.ready) document.fonts.ready.then(draw);
+    return tex;
+  }, []);
+
+  return (
+    <mesh position={[0, 0, -1.7]}>
+      <planeGeometry args={[6.4, 1.28]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.09} depthWrite={false} />
+    </mesh>
+  );
+}
+
 interface DragState {
   dragging: boolean;
   lastX: number;
@@ -175,6 +224,8 @@ function Cluster({
 
   return (
     <group ref={group} position={[0, 0, 0]} rotation={[0, 0, 0]}>
+      {/* ghosted name in the background */}
+      <NameBackdrop />
       {/* bus lines to hub */}
       <lineSegments geometry={lines}>
         <lineBasicMaterial color={ZINC} transparent opacity={0.35} />
