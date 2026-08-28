@@ -129,6 +129,12 @@ export function HeroSection() {
             </span>
           </div>
           <GpuClusterScene />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between border-t border-zinc-800/60 bg-[#0b0b0d]/80 px-3 py-1.5 backdrop-blur">
+            <span className="font-mono text-[10px] text-zinc-600">
+              4 nodes · 10GbE fabric
+            </span>
+            <span className="font-mono text-[10px] text-zinc-500">drag to rotate</span>
+          </div>
         </motion.div>
       </div>
     </section>
