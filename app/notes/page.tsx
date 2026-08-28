@@ -4,6 +4,15 @@ import { formatDate, getReadingTime } from '@/lib/utils';
 import { TechPill } from '@/components/ui/TechPill';
 import { FileText, Clock } from 'lucide-react';
 
+export const metadata = {
+  title: 'Technical Notes',
+  description:
+    'Engineering write-ups, teardowns, and infrastructure documentation. GPU clusters, hardware restoration, and reproducible Unix tooling.',
+  alternates: {
+    canonical: '/notes',
+  },
+};
+
 export default function NotesPage() {
   const posts = getAllPostsMetadata();
 
@@ -33,7 +42,7 @@ export default function NotesPage() {
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {allTags.map((tag) => (
-                <TechPill key={tag} label={tag} />
+                <TechPill key={tag} label={tag} href={`/notes/tag/${encodeURIComponent(tag)}`} />
               ))}
             </div>
 
@@ -80,7 +89,11 @@ export default function NotesPage() {
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {post.tags.map((tag) => (
-                  <TechPill key={tag} label={tag} />
+                  <TechPill
+                    key={tag}
+                    label={tag}
+                    href={`/notes/tag/${encodeURIComponent(tag)}`}
+                  />
                 ))}
               </div>
             </Link>

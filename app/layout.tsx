@@ -18,8 +18,35 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Logan Matthew Phillips \u2014 Systems Integration Engineer',
-  description: 'Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.',
+  metadataBase: new URL('https://logan.dev'),
+  title: {
+    default: 'Logan Matthew Phillips \u2014 Systems Integration Engineer',
+    template: '%s \u00b7 logan.dev',
+  },
+  description:
+    'Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/apple-icon.png',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'logan.dev',
+    locale: 'en_US',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Logan Matthew Phillips \u2014 Systems Integration Engineer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@l064n',
+    creator: '@l064n',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
