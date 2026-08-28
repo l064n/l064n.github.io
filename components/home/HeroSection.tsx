@@ -62,8 +62,8 @@ export function HeroSection() {
           variants={itemVariant}
           className="max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg sm:leading-relaxed"
         >
-          Focusing on autonomous infrastructure, high-performance local compute, and hardware orchestration.
-          Building systems that run entirely offline with zero cloud dependency.
+          Autonomous vehicle infrastructure, high-performance local compute, and hardware orchestration —
+          building systems that run entirely offline, with zero cloud dependency.
         </motion.p>
 
         {/* Status indicator row */}
@@ -90,7 +90,7 @@ export function HeroSection() {
         >
           {[
             { label: 'Experience', value: '5+ years' },
-            { label: 'Workstation', value: 'M1 Max' },
+            { label: 'Workstation', value: 'Dual MI50' },
             { label: 'Stack', value: 'Full-stack' },
           ].map((stat) => (
             <div key={stat.label} className="border-l border-zinc-800 pl-3">
