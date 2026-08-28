@@ -41,7 +41,7 @@ export const statusMetrics: StatusMetric[] = [
   { label: 'location', value: 'Oakland, CA', indicator: 'online' },
   { label: 'role', value: 'Systems Integration Engineer, Zoox', indicator: 'online' },
   { label: 'focus', value: 'Autonomous vehicle infrastructure and hardware orchestration' },
-  { label: 'workstation', value: 'Dual AMD Radeon Instinct MI50' },
+  { label: 'workstation', value: 'Dual AMD Radeon Instinct MI50 · 64GB HBM2' },
   { label: 'env', value: 'Nix-Darwin · Ghostty · Z Shell + Starship' },
   { label: 'kmgmt', value: 'Obsidian (migrated from OneNote, 2017–present)' },
 ];
