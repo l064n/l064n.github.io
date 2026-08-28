@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# Push live cluster telemetry to the site (public/status.json).
+#
+# Setup on the cluster (once):
+#   1. Clone this repo:  git clone https://github.com/l064n/l064n.github.io
+#   2. Auth for push:    git config credential.helper store
+#      (fine-grained PAT with Contents: write on this repo, stored once
+#       when you run `git push` manually)
+#   3. Edit the NODES array below to match your cluster.
+#   4. Cron (every 5 min):
+#      */5 * * * * /path/to/l064n.github.io/status/collect.sh >> /tmp/cluster-status.log 2>&1
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+BRANCH="main"
+
+# "display name|ssh target|role"  — use "local" as target to collect on this machine.
+NODES=(
+  "mi50-a|local|inference"
+  "mi50-b|local|training"
+  "rtx-3090|local|inference"
+  "jetson-orin|user@jetson|embedded"
+)
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+i=0
+for entry in "${NODES[@]}"; do
+  name="${entry%%|*}"
+  rest="${entry#*|}"
+  target="${rest%%|*}"
+  role="${rest#*|}"
+  [ "$role" = "$rest" ] && role=""
+
+  if [ "$target" = "local" ]; then
+    out="$(NAME="$name" ROLE="$role" python3 "$SCRIPT_DIR/collect_node.py" 2>/dev/null)"
+  else
+    # Ship the collector to the remote node, then run it there.
+    if ssh -o ConnectTimeout=6 -o BatchMode=yes "$target" "mkdir -p /tmp/cluster-status" 2>/dev/null; then
+      scp -o ConnectTimeout=6 -o BatchMode=yes "$SCRIPT_DIR/collect_node.py" \
+        "$target:/tmp/cluster-status/collect_node.py" 2>/dev/null
+      out="$(ssh -o ConnectTimeout=6 -o BatchMode=yes "$target" \
+        "NAME='$name' ROLE='$role' python3 /tmp/cluster-status/collect_node.py" 2>/dev/null)"
+    else
+      out=""
+    fi
+  fi
+
+  if [ -n "$out" ]; then
+    printf '%s' "$out" > "$tmp/node-$i.json"
+  else
+    printf '{"name":"%s","role":"","online":false,"gpus":[]}' "$name" > "$tmp/node-$i.json"
+  fi
+  i=$((i + 1))
+done
+
+python3 - "$tmp" "$i" > "$REPO_DIR/public/status.json" <<'PY'
+import json
+import os
+import sys
+import time
+
+tmp, count = sys.argv[1], int(sys.argv[2])
+nodes = []
+for i in range(count):
+    try:
+        with open(os.path.join(tmp, f"node-{i}.json")) as fh:
+            nodes.append(json.load(fh))
+    except Exception:
+        pass
+print(
+    json.dumps(
+        {
+            "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "nodes": nodes,
+        },
+        indent=2,
+    )
+)
+PY
+
+cd "$REPO_DIR"
+
+# Only push when the telemetry actually changed.
+git pull --rebase origin "$BRANCH" >/dev/null 2>&1 || true
+if [ -z "$(git status --porcelain -- public/status.json)" ]; then
+  echo "$(date -u +%H:%M)Z status unchanged, skipping push"
+  exit 0
+fi
+
+git add public/status.json
+git commit -m "status: cluster telemetry $(date -u +%H:%M)Z" >/dev/null
+git push origin "$BRANCH" >/dev/null 2>&1 \
+  && echo "$(date -u +%H:%M)Z pushed status update" \
+  || echo "$(date -u +%H:%M)Z push failed (check credentials)"

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { TerminalWindow } from '@/components/ui/TerminalWindow';
 import { statusMetrics, type StatusMetric } from '@/lib/data';
 import { StatusDot } from '@/components/ui/StatusDot';
+import { ClusterStatus } from '@/components/home/ClusterStatus';
 
 const staggerContainer = {
   initial: {},
@@ -41,6 +42,14 @@ export function StatusDashboard() {
               </motion.div>
             ))}
           </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <ClusterStatus />
+          </motion.div>
         </TerminalWindow>
       </motion.div>
     </section>

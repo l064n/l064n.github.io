@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # Status telemetry pushes must not trigger full site rebuilds.
+    paths-ignore:
+      - 'public/status.json'
+      - 'status/**'
+      - 'legacy-2020/**'
   workflow_dispatch:
 
 permissions:

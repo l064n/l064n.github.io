@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-08-28T22:00:00Z",
+  "nodes": [
+    {
+      "name": "mi50-a",
+      "role": "inference",
+      "online": true,
+      "gpus": [
+        {
+          "name": "AMD Instinct MI50",
+          "util": 0,
+          "temp": 38,
+          "memUsed": 1.2,
+          "memTotal": 32,
+          "power": 31
+        }
+      ]
+    },
+    {
+      "name": "mi50-b",
+      "role": "training",
+      "online": true,
+      "gpus": [
+        {
+          "name": "AMD Instinct MI50",
+          "util": 0,
+          "temp": 39,
+          "memUsed": 0.8,
+          "memTotal": 32,
+          "power": 29
+        }
+      ]
+    },
+    {
+      "name": "rtx-3090",
+      "role": "inference",
+      "online": true,
+      "gpus": [
+        {
+          "name": "NVIDIA GeForce RTX 3090",
+          "util": 0,
+          "temp": 35,
+          "memUsed": 0.4,
+          "memTotal": 24,
+          "power": 22
+        }
+      ]
+    },
+    {
+      "name": "jetson-orin",
+      "role": "embedded",
+      "online": true,
+      "gpus": []
+    }
+  ]
+}
