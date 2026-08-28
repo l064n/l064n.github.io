@@ -1,0 +1,42 @@
+---
+title: 1989 Macintosh Portable Restoration
+date: 2025-08-22
+status: Completed
+role: Hardware Engineer
+stack: [Soldering (0603), Oscilloscope, Logic Analyzer, OSForensics]
+impact: Restored a 1989-era CRT laptop to fully operational condition with working video output
+categories: [Restoration]
+description: Complete board-level restoration of a 1989 Apple Macintosh Portable: full recap, CRT phosphor alignment, logic-board diagnostics, and System 7 firmware recovery from original SCSI backup media.
+---
+
+## The machine
+
+The Macintosh Portable (1989–1991) was Apple's first "laptop": a 9-inch CRT, 68030 CPU, and a 40 MB SCSI drive, all in a 12.7 lb case. It's the machine where Apple's future design language was born — the same chassis DNA became the PowerBook 100 and, eventually, everything after.
+
+This particular unit arrived dead. No video, no hard drive activity, no POST.
+
+## Diagnosis
+
+The failure mode was textbook capacitor degradation: the electrolytics on the logic board, 36 years old, had dried out. ESR readings on the power rail caps were 10–40× spec. The board was also showing a cold solder joint on the video RAM clock line — the kind of thing that makes a board "work" until it doesn't.
+
+The full recap procedure is documented in [my recapping guide](/notes/legacy-hardware-recapping-guide), so here's just the interesting parts of this specific board:
+
+- **214 electrolytic capacitors** replaced, 47µF/16V to 470µF/25V, all solid-state or high-temperature film where the board's geometry allowed
+- **Reflow profile** on the logic board: 235°C peak, 90 seconds over 200°C, done in a dedicated reflow oven rather than a hot air gun (uniformity matters on a board this dense)
+- **Phosphor alignment** on the 9-inch CRT — the shadow mask had drifted slightly, causing a color fringing on vertical edges. Adjusted with the alignment screw at the neck, plus a minor yoke rotation
+
+## Firmware recovery
+
+The original 40 MB Quantum drive was dead (as expected — the head gimbal lube on these dries out). System 7 was recovered from a 1991 SCSI backup tape that came with the machine:
+
+```
+$ dd if=/dev/rs0s1 bs=64k of=macportable-disk.img
+$ hdiutil imageinfo macportable-disk.img
+$ mount_macportable-disk.img
+```
+
+The system volume mounted clean. The startup disk, Apple Menu, and a half-finished AppleWorks document from 1991 were all intact.
+
+## Result
+
+The machine now boots to the Apple logo, runs System 7.5.3, and has stable video output. The CRT's phosphor burn-in is part of its character — it's a machine that was used, and that shows. It's currently on the shelf as a daily reminder that most "dead" electronics are just waiting for someone to be patient with them.

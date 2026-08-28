@@ -1,4 +1,5 @@
 import { ProjectsGrid } from '@/components/projects/ProjectsGrid';
+import { getAllProjectsMetadata } from '@/lib/projects';
 
 export const metadata = {
   title: 'Projects',
@@ -10,6 +11,8 @@ export const metadata = {
 };
 
 export default function ProjectsPage() {
+  const projects = getAllProjectsMetadata();
+
   return (
     <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       {/* Page header */}
@@ -25,7 +28,7 @@ export default function ProjectsPage() {
         </p>
       </div>
 
-      <ProjectsGrid />
+      <ProjectsGrid projects={projects} />
     </section>
   );
 }

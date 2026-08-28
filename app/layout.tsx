@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { getAllProjectsMetadata } from '@/lib/projects';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -53,7 +54,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-background text-zinc-300 min-h-screen flex flex-col antialiased">
-        <Header />
+        <Header
+          projects={getAllProjectsMetadata().map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            categories: p.categories,
+          }))}
+        />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
