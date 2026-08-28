@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { TechPill } from '@/components/ui/TechPill';
+import { TiltCard } from '@/components/ui/TiltCard';
 import { formatDate } from '@/lib/utils';
 import type { Project } from '@/lib/data';
 
@@ -28,8 +29,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
       transition={{ duration: 0.35, ease: easeOutExpo }}
       layout
     >
-      <Card>
-        {/* Header */}
+      <TiltCard maxTilt={5}>
+        <Card className="h-full">
+          {/* Header */}
         <div className="mb-3 flex items-start justify-between gap-3">
           <h3 className="text-base font-semibold text-zinc-100">{project.title}</h3>
           <span className={`shrink-0 font-mono text-xs ${statusColors[project.status]}`}>
@@ -65,18 +67,19 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </dl>
 
-        {/* Footer: categories + date */}
-        <div className="mt-4 flex items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            {project.categories.map((cat) => (
-              <Badge key={cat} variant="outline">{cat}</Badge>
-            ))}
+          {/* Footer: categories + date */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {project.categories.map((cat) => (
+                <Badge key={cat} variant="outline">{cat}</Badge>
+              ))}
+            </div>
+            <time className="shrink-0 font-mono text-xs text-zinc-600">
+              {formatDate(project.date)}
+            </time>
           </div>
-          <time className="shrink-0 font-mono text-xs text-zinc-600">
-            {formatDate(project.date)}
-          </time>
-        </div>
-      </Card>
+        </Card>
+      </TiltCard>
     </motion.div>
   );
 }

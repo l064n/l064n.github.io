@@ -7,7 +7,7 @@ summary: Deep dive into optimizing a multi-GPU cluster for local LLM inference w
 
 ## Overview
 
-Setting up an on-premises multi-GPU compute cluster presents unique challenges that don't exist in cloud environments. This document covers the key optimization strategies I've applied to our heterogeneous setup — RTX 3090s, MI50s, and Jetson AGX Orin nodes — for running large language models entirely locally at my Oakland workspace.
+Setting up an on-premises multi-GPU compute cluster presents unique challenges that don't exist in cloud environments. This document covers the key optimization strategies I've applied to my heterogeneous setup — RTX 3090s, MI50s, and Jetson AGX Orin nodes — for running large language models entirely locally at my Oakland workspace.
 
 ## Hardware Topology
 
@@ -62,7 +62,7 @@ def read_gpu_temps():
 
 ## ROCm on MI50 Nodes
 
-Getting AMD's ROCm stack working on consumer hardware requires some surgical tweaks. The MI50s (polaris architecture) aren't officially supported in ROCm 5.x, but with a device ID override:
+Getting AMD's ROCm stack working on these cards requires some surgical tweaks. The MI50s (Vega 20 architecture) need a device ID override:
 
 ```bash
 # /etc/modprobe.d/amdgpu.conf

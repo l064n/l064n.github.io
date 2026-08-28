@@ -2,9 +2,16 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, FileText, FolderGit2, BrainCircuit, Wrench, Bike } from 'lucide-react';
+import { ArrowRight, FileText, FolderGit2, BrainCircuit, Wrench, Terminal, Briefcase } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { projects } from '@/lib/data';
+
+interface NoteMeta {
+  slug: string;
+  title: string;
+  date: string;
+  tags: string[];
+}
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
@@ -20,7 +27,28 @@ const itemVariant = {
 
 const iconStyles = (color: string) => `p-2 rounded-lg ${color} transition-transform group-hover:scale-110`;
 
-export function RecentActivity() {
+/** Map a note's primary tag to a terminal-style icon. */
+function noteIcon(tag: string | undefined) {
+  if (!tag) return { icon: <FileText className="size-4" />, bg: 'bg-zinc-500/10 text-zinc-400' };
+  switch (tag) {
+    case 'GPU':
+    case 'LLM':
+    case 'Infrastructure':
+      return { icon: <BrainCircuit className="size-4" />, bg: 'bg-purple-500/10 text-purple-400' };
+    case 'Hardware':
+    case 'Restoration':
+    case 'Electronics':
+      return { icon: <Wrench className="size-4" />, bg: 'bg-amber-500/10 text-amber-400' };
+    case 'Unix':
+    case 'macOS':
+    case 'DevOps':
+      return { icon: <Terminal className="size-4" />, bg: 'bg-sky-500/10 text-sky-400' };
+    default:
+      return { icon: <FileText className="size-4" />, bg: 'bg-zinc-500/10 text-zinc-400' };
+  }
+}
+
+export function RecentActivity({ posts }: { posts: NoteMeta[] }) {
   const latestProject = [...projects].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
   return (
@@ -47,32 +75,32 @@ export function RecentActivity() {
         className="space-y-2"
       >
         {/* Note entries */}
-        {[
-          { slug: 'nix-darwin-and-unix-tooling', title: 'Nix-Darwin and My Unix Toolchain', date: '2026-02-10', icon: <Wrench className="size-4" />, iconBg: 'bg-sky-500/10 text-sky-400' },
-          { slug: 'multi-gpu-cluster-optimization', title: 'Multi-GPU Cluster Optimization Notes', date: '2026-01-15', icon: <BrainCircuit className="size-4" />, iconBg: 'bg-purple-500/10 text-purple-400' },
-        ].map((post) => (
-          <motion.div key={post.slug} variants={itemVariant}>
-            <Link
-              href={`/notes/${post.slug}`}
-              className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
-            >
-              <div className={iconStyles(post.iconBg)}>
-                {post.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors truncate">
-                  {post.title}
-                </h3>
-                <p className="mt-0.5 font-mono text-xs text-zinc-600">
-                  {formatDate(post.date)}
-                  <span className="mx-1.5">·</span>
-                  Notes
-                </p>
-              </div>
-              <ArrowRight className="size-4 shrink-0 text-zinc-700 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
-            </Link>
-          </motion.div>
-        ))}
+        {posts.map((post) => {
+          const { icon, bg } = noteIcon(post.tags[0]);
+          return (
+            <motion.div key={post.slug} variants={itemVariant}>
+              <Link
+                href={`/notes/${post.slug}`}
+                className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
+              >
+                <div className={iconStyles(bg)}>
+                  {icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors truncate">
+                    {post.title}
+                  </h3>
+                  <p className="mt-0.5 font-mono text-xs text-zinc-600">
+                    {formatDate(post.date)}
+                    <span className="mx-1.5">·</span>
+                    Notes
+                  </p>
+                </div>
+                <ArrowRight className="size-4 shrink-0 text-zinc-700 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+              </Link>
+            </motion.div>
+          );
+        })}
 
         {/* Latest project entry */}
         {latestProject && (
@@ -106,7 +134,7 @@ export function RecentActivity() {
             className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
           >
             <div className={iconStyles('bg-emerald-500/10 text-emerald-400')}>
-              <Bike className="size-4" />
+              <Briefcase className="size-4" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors truncate">

@@ -1,7 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { StatusDot } from '@/components/ui/StatusDot';
+
+// three.js is heavy; load the cluster scene out-of-band
+const GpuClusterScene = dynamic(
+  () => import('@/components/home/GpuClusterScene').then((m) => m.GpuClusterScene),
+  { ssr: false, loading: () => <div className="h-full w-full" /> }
+);
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
@@ -29,9 +36,10 @@ const GridPattern = () => (
 
 export function HeroSection() {
   return (
-    <section className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28 sm:pb-20">
+    <section className="relative mx-auto max-w-6xl px-4 pt-16 pb-12 sm:px-6 sm:pt-24 sm:pb-16">
       <GridPattern />
 
+      <div className="grid items-center gap-10 lg:grid-cols-[1fr_minmax(360px,440px)]">
       <motion.div variants={staggerContainer} initial="initial" animate="animate">
         {/* Terminal-style greeting */}
         <motion.div
@@ -100,6 +108,29 @@ export function HeroSection() {
           ))}
         </motion.div>
       </motion.div>
+
+        {/* Live 3D cluster visualization */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: easeOutExpo }}
+          className="relative h-64 overflow-hidden rounded-xl border border-zinc-800/60 bg-[#0b0b0d] sm:h-80 lg:h-[420px]"
+        >
+          <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-2 border-b border-zinc-800/60 bg-[#0b0b0d]/80 px-3 py-2 backdrop-blur">
+            <span className="size-2.5 rounded-full bg-zinc-700/80" />
+            <span className="size-2.5 rounded-full bg-zinc-700/80" />
+            <span className="size-2.5 rounded-full bg-zinc-700/80" />
+            <span className="ml-2 font-mono text-[11px] text-zinc-500">
+              gpu_cluster --topology
+            </span>
+            <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-emerald-400/80">
+              <StatusDot variant="online" pulse={false} />
+              live
+            </span>
+          </div>
+          <GpuClusterScene />
+        </motion.div>
+      </div>
     </section>
   );
 }

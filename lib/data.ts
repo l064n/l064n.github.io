@@ -35,6 +35,9 @@ export const siteConfig = {
   workstation: 'Dual AMD Radeon Instinct MI50 · 64GB HBM2',
   osEnv: 'macOS · Nix-Darwin · Ghostty · Z Shell + Starship + Zoxide',
   knowledgeManagement: 'Obsidian (migrated from OneNote, 2017–present)',
+  email: 'phillips.logan.sc@gmail.com',
+  github: 'https://github.com/l064n',
+  linkedin: 'https://www.linkedin.com/in/loganmphillips/',
 };
 
 export const statusMetrics: StatusMetric[] = [
