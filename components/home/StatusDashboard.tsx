@@ -8,15 +8,13 @@ import { StatusDot } from '@/components/ui/StatusDot';
 const staggerContainer = {
   initial: {},
   animate: {
-    transition: {
-      staggerChildren: 0.05,
-    },
+    transition: { staggerChildren: 0.04 },
   },
 };
 
 const rowVariant = {
   initial: { opacity: 0, x: -10 },
-  animate: { opacity: 1, x: 0, transition: { duration: 0.2 } },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.25 } },
 };
 
 export function StatusDashboard() {
@@ -30,7 +28,7 @@ export function StatusDashboard() {
         <TerminalWindow title="system_status — bash">
           <div className="space-y-0.5 font-mono text-sm">
             {statusMetrics.map((metric: StatusMetric) => (
-              <motion.div key={metric.label} variants={rowVariant} className="flex gap-4">
+              <motion.div key={metric.label} variants={rowVariant} className="flex gap-4 hover:bg-white/[0.02] rounded px-2 -mx-2 py-0.5 transition-colors">
                 <span className="shrink-0 w-36 truncate text-zinc-500">{metric.label}</span>
                 <span className="text-zinc-300">
                   {metric.indicator && (

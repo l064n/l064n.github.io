@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { formatDate, getReadingTime } from '@/lib/utils';
 import { TechPill } from '@/components/ui/TechPill';
 import { MDXRenderer } from '@/components/blog/MDXRenderer';
@@ -25,33 +25,36 @@ export default async function NotePage({ params }: Props) {
     }
 
     return (
-      <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        {/* Back link */}
+      <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
+        {/* Breadcrumb */}
         <Link
           href="/notes"
-          className="group inline-flex items-center gap-1.5 text-sm font-mono text-zinc-500 hover:text-accent transition-colors mb-8"
+          className="group inline-flex items-center gap-1.5 text-xs font-mono text-zinc-600 hover:text-zinc-400 transition-colors mb-10"
         >
-          <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          Back to notes
+          <ArrowLeft className="h-3 w-3 group-hover:-translate-x-0.5 transition-transform" />
+          <span>Notes</span>
+          <ChevronRight className="h-3 w-3 text-zinc-700" />
+          <span className="text-zinc-500 truncate">{post.frontmatter.title}</span>
         </Link>
 
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-zinc-600 mb-4">
+        <header className="mb-10">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-mono text-zinc-600 mb-5">
             <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3 w-3" />
+              <Calendar className="h-3 w-3 text-zinc-700" />
               {formatDate(post.frontmatter.date)}
             </span>
+            <span className="text-zinc-700">·</span>
             <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3 text-zinc-700" />
               {getReadingTime(post.bodyOnly)} min read
             </span>
           </div>
 
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{post.frontmatter.title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl">{post.frontmatter.title}</h1>
 
           {post.frontmatter.tags && (
-            <div className="mt-3 flex gap-1.5">
+            <div className="mt-4 flex flex-wrap gap-1.5">
               {post.frontmatter.tags.map((tag) => (
                 <TechPill key={tag} label={tag} />
               ))}
@@ -60,7 +63,9 @@ export default async function NotePage({ params }: Props) {
         </header>
 
         {/* Content */}
-        <MDXRenderer>{post.content}</MDXRenderer>
+        <article className="rounded-xl border border-zinc-800/50 bg-[#111] p-6 sm:p-8">
+          <MDXRenderer>{post.content}</MDXRenderer>
+        </article>
       </section>
     );
   } catch {
