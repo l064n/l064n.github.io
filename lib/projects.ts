@@ -37,6 +37,8 @@ export async function getProject(slug: string) {
   const fullPath = path.join(projectsDirectory, `${slug}.mdx`);
   const source = fs.readFileSync(fullPath, 'utf8');
   const metadata = getProjectMetadata(slug);
-  const result = await compileMDX({ source, components: mdxComponents });
+  // Body only — same setext-heading rationale as the notes pipeline.
+  const bodyOnly = source.replace(/^---\n[\s\S]*?\n---/, '').trim();
+  const result = await compileMDX({ source: bodyOnly, components: mdxComponents });
   return { content: result.content, frontmatter: metadata };
 }

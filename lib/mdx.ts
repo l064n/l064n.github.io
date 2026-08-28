@@ -71,7 +71,8 @@ export async function getPost(slug: string) {
   const fullPath = path.join(notesDirectory, `${slug}.mdx`);
   const source = fs.readFileSync(fullPath, 'utf8');
 
-  // Extract body-only text for reading time calculation
+  // Compile the body only — the closing frontmatter delimiter would
+  // otherwise be parsed as a setext heading underline.
   const bodyOnly = source.replace(/^---\n[\s\S]*?\n---/, '').trim();
 
   // Use custom parser for frontmatter
@@ -79,7 +80,7 @@ export async function getPost(slug: string) {
 
   // Compile MDX to React element with component injection
   const result = await compileMDX({
-    source,
+    source: bodyOnly,
     components: mdxComponents,
   });
 
