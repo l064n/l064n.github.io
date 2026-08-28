@@ -7,6 +7,7 @@ import * as THREE from 'three';
 const ZINC = '#3f3f46';
 const ZINC_DIM = '#27272a';
 const ACCENT = '#34d399';
+const HUB: [number, number, number] = [0, 0, 0];
 
 /** Wireframe GPU card: PCB + memory fins + fan ring */
 function GpuCard({
@@ -131,13 +132,11 @@ function Cluster({
       ],
     []
   );
-  const hub: [number, number, number] = [0, 0, 0];
-
   const lines = useMemo(() => {
     const geo = new THREE.BufferGeometry();
     const pts: number[] = [];
     cards.forEach(({ p }) => {
-      pts.push(p[0], p[1], p[2], hub[0], hub[1], hub[2]);
+      pts.push(p[0], p[1], p[2], HUB[0], HUB[1], HUB[2]);
     });
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
     return geo;
@@ -192,7 +191,7 @@ function Cluster({
       {/* data pulses (omitted under reduced motion) */}
       {!reducedMotion &&
         cards.map(({ p }, i) => (
-          <DataPulse key={i} from={p} to={hub} offset={i * 0.25} />
+          <DataPulse key={i} from={p} to={HUB} offset={i * 0.25} />
         ))}
     </group>
   );

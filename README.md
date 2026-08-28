@@ -1,127 +1,86 @@
-# Portfolio Three
+# l064n — Personal Site
 
-Personal website & portfolio for **Logan Matthew Phillips** — Systems Integration Engineer.
-Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.
+[logan.dev](https://logan.dev) — portfolio, technical notes, and live cluster telemetry.
+Built with Next.js 15 (App Router, static export), Tailwind CSS, MDX, Framer Motion, and react-three-fiber.
 
-**Live:** https://l064n.github.io/
+## Architecture
 
-[![Deploy to GitHub Pages](https://github.com/l064n/l064n.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/l064n/l064n.github.io/actions/workflows/deploy.yml)
+```
+app/                  # Routes (static export)
+  page.tsx            # Home: 3D hero + live status + recent activity
+  projects/           # Project grid + /projects/[slug] deep dives
+  notes/              # Note index, /notes/[slug], /notes/tag/[tag], RSS feed
+  experience/         # Career timeline + toolkit
+  sitemap.xml/        # Static sitemap route
+  not-found.tsx       # Terminal-styled 404
+components/           # ui / layout / home / projects / notes / mdx
+content/
+  notes/              # MDX notes (frontmatter: title, date, tags, summary)
+  projects/           # MDX projects (frontmatter: title, date, status, role, stack, impact, categories, description)
+lib/
+  mdx.ts              # Notes MDX pipeline (frontmatter parser, compileMDX)
+  projects.ts         # Projects MDX pipeline
+  toc.ts              # TOC extraction + heading id (shared by renderer & extractor)
+  data.ts             # siteConfig, experience, toolkit, nav
+public/
+  status.json         # Live cluster telemetry (committed snapshot + live updates)
+  og-image.png        # Open Graph / share preview
+status/
+  collect.sh          # Cluster → repo telemetry pusher (cron)
+  collect_node.py     # Per-node GPU telemetry (nvidia-smi / rocm-smi)
+```
 
----
-
-## Features
-
-- **Home** — terminal-style hero (`$ whoami`), live status dashboard, recent activity feed
-- **Projects** — filterable project grid with category chips and impact metrics
-- **Notes** — MDX technical writing with a sticky tag sidebar, custom code blocks with copy-to-clipboard, and callout components
-- **Experience** — career timeline and physical toolkit grid
-- **Command palette** — `⌘K` / `Ctrl+K` site-wide navigation
-- Dark, industrial-minimalism design system (deep neutral palette, amber accent)
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Framework | [Next.js 15](https://nextjs.org) (App Router, static export) |
-| Language | TypeScript (strict mode) |
-| Styling | Tailwind CSS + `@tailwindcss/typography` |
-| Animation | Framer Motion (client components only) |
-| Content | MDX via `next-mdx-remote` with a custom frontmatter parser |
-| UI | Lucide React icons, `cmdk` command palette |
-| Hosting | GitHub Pages (Actions-based static export) |
-
-## Getting Started
+## Development
 
 ```bash
 npm install
-npm run dev
+npm run dev       # http://localhost:3000
+npm run build     # static export to out/
+npm run lint      # eslint (next/core-web-vitals + typescript)
 ```
 
-Open http://localhost:3000 — the app is served from the root (this is a
-GitHub Pages **user site**, i.e. the repo is named `l064n.github.io`).
+## Deployment
 
-### Scripts
+`push → main` triggers `.github/workflows/deploy.yml`:
+build → convert flat `.html` to directory `index.html` (GitHub Pages requires this) → deploy to Pages.
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start the development server |
-| `npm run build` | Production build (static export to `out/`) |
-| `npm start` | Serve the production build |
-| `npm run lint` | Run ESLint |
+The site serves on **logan.dev** (CNAME in `public/`) with **l064n.github.io** as fallback.
+Point a `CNAME` DNS record for `logan.dev` at `l064n.github.io`.
 
-## Project Structure
+`paths-ignore` keeps telemetry pushes (`public/status.json`) from triggering full site rebuilds.
 
-```
-Project_Three/
-├── app/                      # Next.js App Router
-│   ├── layout.tsx            # Root layout (Inter + JetBrains Mono, Header/Footer)
-│   ├── page.tsx              # Home
-│   ├── globals.css           # Dark palette CSS vars, prose styles
-│   ├── projects/page.tsx     # Filterable project grid
-│   ├── notes/                # MDX notes index + [slug] renderer
-│   └── experience/page.tsx   # Career timeline + toolkit grid
-├── components/
-│   ├── ui/                   # Atomic primitives (Badge, Card, StatusDot, TechPill, TerminalWindow)
-│   ├── layout/               # Header, Footer, CommandPalette
-│   ├── home/                 # HeroSection, StatusDashboard, RecentActivity
-│   ├── projects/             # FilterBar, ProjectCard
-│   ├── blog/                 # MDXRenderer (prose wrapper)
-│   └── mdx/                  # Callout, CustomCodeBlock
-├── content/
-│   └── notes/                # MDX articles + frontmatter-schema.ts
-├── lib/
-│   ├── data.ts               # Site config, projects, experience data
-│   ├── mdx.ts                # MDX pipeline (slugs, metadata, compileMDX)
-│   └── utils.ts              # cn(), formatDate(), getReadingTime(), slugify()
-├── plans/                    # Design docs (historical)
-│   ├── portfolio-architecture.md   # v2 architecture plan (design system, specs)
-│   └── rebuild-plan.md             # v3 clean-slate rebuild plan (current structure)
-└── .github/workflows/deploy.yml    # GitHub Pages deployment
-```
+`ci.yml` runs lint + typecheck + build on PRs and pushes.
 
-> The previous site (2020, Bootstrap "Creative" template) was archived as the
-> git tag `legacy-site-2020` in this repo before being replaced.
+## Live cluster status
 
-## Content
+The home page dashboard shows real GPU telemetry. Flow:
 
-Notes live in `content/notes/` as `.mdx` files. Each file begins with simple
-YAML-like frontmatter (parsed by the lightweight parser in
-[`lib/mdx.ts`](lib/mdx.ts)):
+1. `status/collect.sh` runs on the cluster every 5 min (cron)
+2. It gathers per-node GPU data (`collect_node.py`, supports local or ssh targets)
+3. Merges into `public/status.json`, commits **only when changed**, pushes with a PAT
+4. The client component (`ClusterStatus`) polls `raw.githubusercontent.com` every 60s —
+   the site updates without a deploy; the committed `status.json` is the offline fallback
 
-```mdx
----
-title: My Note Title
-date: 2025-11-15
-tags: [hardware, gpu]
-summary: One-line description for the index page.
----
+### Setting up the cluster daemon
 
-# Heading
+1. Clone this repo on the cluster
+2. `git config credential.helper store` (a fine-grained PAT with **Contents: write** on this
+   repo only, stored on first `git push`)
+3. Edit the `NODES` array in `status/collect.sh` — format: `name|target|role`,
+   where `target` is `local` or an ssh address
+4. Cron:
+   ```
+   */5 * * * * /path/to/repo/status/collect.sh >> /tmp/cluster-status.log 2>&1
+   ```
 
-Body content. Custom components available:
+## Adding content
 
-<Callout type="warning">Inline callouts</Callout>
-<CustomCodeBlock language="bash">npm run dev</CustomCodeBlock>
-```
+**Note**: drop a `.mdx` file in `content/notes/` with frontmatter
+(`title`, `date`, `tags`, `summary`). It appears in the index, RSS, sitemap,
+command palette, and Recent Activity automatically. Headings get TOC anchors
+and the note page gets a TOC, reading progress, prev/next, and related notes.
 
-Site content (projects, status metrics, experience timeline, navigation) is
-defined in [`lib/data.ts`](lib/data.ts).
-
-
-### Local production build
-
-```bash
-npm run build   # writes static site to out/
-npx serve out   # preview the export locally
-```
-
-## Documentation
-
-Design and architecture docs are kept in [`plans/`](plans/):
-
-- [`plans/portfolio-architecture.md`](plans/portfolio-architecture.md) — v2 technical architecture: design tokens, component specs, data models (historical)
-- [`plans/rebuild-plan.md`](plans/rebuild-plan.md) — v3 clean-slate rebuild plan reflecting the current structure
-
-## License
-
-© Logan Matthew Phillips. All rights reserved.
+**Project**: drop a `.mdx` file in `content/projects/` with frontmatter
+(`title`, `date`, `status`, `role`, `stack`, `impact`, `categories`,
+`description`). It gets a card on `/projects` and a deep-dive page at
+`/projects/[slug]`.

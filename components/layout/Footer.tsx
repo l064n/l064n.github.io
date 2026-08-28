@@ -9,7 +9,8 @@ export function Footer() {
           {/* Left: Copyright + status */}
           <div className="flex flex-col items-center sm:items-start gap-1">
             <p className="font-mono text-xs text-zinc-600">
-              <span className="text-zinc-700">{'$'}</span> echo "© {new Date().getFullYear()} Logan Matthew Phillips"
+              <span className="text-zinc-700">{'$'}</span>{' '}
+              {`echo "© ${new Date().getFullYear()} Logan Matthew Phillips"`}
             </p>
             <p className="font-mono text-[10px] text-zinc-700">
               Built with Next.js · Tailwind · Framer Motion
