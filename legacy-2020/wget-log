@@ -1,0 +1,40 @@
+HTTP request sent, awaiting response... 200 OK
+Length: 6438 (6.3K) [application/octet-stream]
+Saving to: ‚Äòarchey-0.2.8.deb‚Äô
+
+
+
+2016-09-09 18:08:53 (1022 MB/s) - ‚Äòarchey-0.2.8.deb‚Äô saved [6438/6438]
+
+--2016-09-09 18:08:53--  http://sudo/
+Resolving sudo (sudo)... failed: Name or service not known.
+wget: unable to resolve host address ‚Äòsudo‚Äô
+--2016-09-09 18:08:53--  http://dpkg/
+Resolving dpkg (dpkg)... failed: Name or service not known.
+wget: unable to resolve host address ‚Äòdpkg‚Äô
+archey-0.2.8.deb: Invalid URL :Q@ù]‘>¡Jh¸•J∑"ëı¿ÂIÄÅvˇ◊: Scheme missing
+--2016-09-09 18:08:53--  http://!%3Carch%3E/
+Resolving !<arch> (!<arch>)... failed: Name or service not known.
+wget: unable to resolve host address ‚Äò!<arch>‚Äô
+--2016-09-09 18:08:53--  http://debian-binary%20%20%201286409930%20%200%20%20%20%20%200%20%20%20%20%20100644%20%204%20%20%20%20%20%20%20%20%20%60/
+Resolving debian-binary   1286409930  0     0     100644  4         ` (debian-binary   1286409930  0     0     100644  4         `)... failed: Name or service not known.
+wget: unable to resolve host address ‚Äòdebian-binary   1286409930  0     0     100644  4         `‚Äô
+--2016-09-09 18:08:53--  http://2.0/
+Resolving 2.0 (2.0)... 2.0.0.0
+Connecting to 2.0 (2.0)|2.0.0.0|:80... failed: Connection timed out.
+Retrying.
+
+--2016-09-09 18:11:02--  (try: 2)  http://2.0/
+Connecting to 2.0 (2.0)|2.0.0.0|:80... failed: Connection timed out.
+Retrying.
+
+--2016-09-09 18:13:11--  (try: 3)  http://2.0/
+Connecting to 2.0 (2.0)|2.0.0.0|:80... failed: Connection timed out.
+Retrying.
+
+--2016-09-09 18:15:21--  (try: 4)  http://2.0/
+Connecting to 2.0 (2.0)|2.0.0.0|:80... failed: Connection timed out.
+Retrying.
+
+--2016-09-09 18:17:33--  (try: 5)  http://2.0/
+Connecting to 2.0 (2.0)|2.0.0.0|:80... 
