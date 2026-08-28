@@ -32,7 +32,7 @@ export const siteConfig = {
   education: 'UC Santa Cruz (UCSC)',
   currentTitle: 'Systems Integration Engineer at Zoox',
   focus: 'Autonomous vehicle infrastructure and hardware orchestration',
-  workstation: 'Dual AMD Radeon Instinct MI50 · 32GB HBM2',
+  workstation: 'Dual AMD Radeon Instinct MI50 · 64GB HBM2',
   osEnv: 'macOS · Nix-Darwin · Ghostty · Z Shell + Starship + Zoxide',
   knowledgeManagement: 'Obsidian (migrated from OneNote, 2017–present)',
 };
