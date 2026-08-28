@@ -3,13 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { CommandPalette } from '@/components/layout/CommandPalette';
-import { navLinks, siteConfig } from '@/lib/data';
-import { Keyboard } from 'lucide-react';
+import { navLinks } from '@/lib/data';
+import { Keyboard, Globe } from 'lucide-react';
 
 export function Header() {
   const pathname = usePathname();
 
-  // Build breadcrumb segments from current path
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbParts = [
     { label: '~', href: '/' },
@@ -22,19 +21,19 @@ export function Header() {
   return (
     <>
       <CommandPalette />
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-[#1a1a1a]/60 bg-[#09090b]/70 backdrop-blur-xl">
         <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Breadcrumb Nav */}
-          <nav className="flex items-center gap-1.5 text-sm font-mono text-zinc-500">
+          <nav className="flex items-center gap-1.5 text-xs font-mono">
             {breadcrumbParts.map((part, i) => (
               <span key={part.href} className="flex items-center gap-1.5">
                 {i > 0 && <span className="text-zinc-700">/</span>}
                 {i === breadcrumbParts.length - 1 ? (
-                  <span className="text-accent">{part.label}</span>
+                  <span className="font-medium text-zinc-300">{part.label}</span>
                 ) : (
                   <Link
                     href={part.href}
-                    className="transition-colors hover:text-zinc-300"
+                    className="text-zinc-600 transition-colors hover:text-zinc-400"
                   >
                     {part.label}
                   </Link>
@@ -43,30 +42,29 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Right side: page links + palette trigger */}
+          {/* Right side */}
           <div className="flex items-center gap-3">
-            <nav className="hidden sm:flex items-center gap-1">
+            <nav className="hidden sm:flex items-center gap-0.5 rounded-lg border border-[#1a1a1a] bg-[#111]/50 px-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative rounded-sm px-2.5 py-1 text-xs font-medium transition-colors ${
-                      isActive ? 'text-accent' : 'text-zinc-500 hover:text-zinc-300'
+                    className={`relative rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+                      isActive
+                        ? 'text-zinc-100 bg-[#1a1a1a]'
+                        : 'text-zinc-600 hover:text-zinc-400'
                     }`}
                   >
                     {link.label}
-                    {isActive && (
-                      <div className="absolute inset-x-1 bottom-0 h-px bg-accent transition-opacity" />
-                    )}
                   </Link>
                 );
               })}
             </nav>
 
-            {/* Command palette shortcut hint */}
-            <kbd className="hidden items-center gap-1 rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-mono text-zinc-600 sm:flex">
+            {/* Command palette shortcut */}
+            <kbd className="flex items-center gap-1 rounded-md border border-[#1a1a1a] bg-[#111]/50 px-2 py-1 text-[10px] font-mono text-zinc-600 transition-colors hover:text-zinc-400">
               <Keyboard className="h-3 w-3" />
               <span>⌘K</span>
             </kbd>

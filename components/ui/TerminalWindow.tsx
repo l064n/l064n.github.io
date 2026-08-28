@@ -7,16 +7,16 @@ interface TerminalWindowProps {
 
 export function TerminalWindow({ children, title = 'terminal' }: TerminalWindowProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-neutral-800 bg-[#1a1a1a]">
+    <div className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#0d0d0d] shadow-2xl shadow-black/40">
       {/* Title bar */}
-      <div className="flex items-center gap-2 border-b border-neutral-800 px-4 py-2.5">
-        <span className="size-2 rounded-full bg-red-500/70" />
-        <span className="size-2 rounded-full bg-yellow-500/70" />
-        <span className="size-2 rounded-full bg-green-500/70" />
-        <span className="ml-2 font-mono text-xs text-neutral-600">{title}</span>
+      <div className="flex items-center gap-2 border-b border-[#1a1a1a] px-4 py-3">
+        <span className="size-2.5 rounded-full bg-[#ff5f57]/80 hover:bg-[#ff5f57] transition-colors" />
+        <span className="size-2.5 rounded-full bg-[#febc2e]/80 hover:bg-[#febc2e] transition-colors" />
+        <span className="size-2.5 rounded-full bg-[#28c840]/80 hover:bg-[#28c840] transition-colors" />
+        <span className="ml-3 font-mono text-xs text-zinc-600">{title}</span>
       </div>
       {/* Content */}
-      <div className="p-4">
+      <div className="p-5">
         {children}
       </div>
     </div>

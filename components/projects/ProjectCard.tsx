@@ -3,8 +3,11 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { TechPill } from '@/components/ui/TechPill';
 import { formatDate } from '@/lib/utils';
 import type { Project } from '@/lib/data';
+
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 interface ProjectCardProps {
   project: Project;
@@ -12,23 +15,23 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const statusColors = {
-    Active: 'text-green-500',
+    Active: 'text-emerald-400',
     Completed: 'text-zinc-400',
     Archived: 'text-zinc-600',
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.35, ease: easeOutExpo }}
       layout
     >
       <Card>
         {/* Header */}
-        <div className="mb-3 flex items-start justify-between gap-2">
-          <h3 className="text-base font-semibold">{project.title}</h3>
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h3 className="text-base font-semibold text-zinc-100">{project.title}</h3>
           <span className={`shrink-0 font-mono text-xs ${statusColors[project.status]}`}>
             {project.status}
           </span>
@@ -40,17 +43,24 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
 
         {/* Metrics grid */}
-        <dl className="space-y-2 border-t border-neutral-800 pt-3">
+        <dl className="space-y-2 border-t border-zinc-800/60 pt-3">
           <div className="flex gap-2 text-xs">
-            <dt className="shrink-0 font-mono text-zinc-500 w-16">Role</dt>
+            <dt className="shrink-0 w-14 font-mono text-zinc-600">Role</dt>
             <dd className="text-zinc-300">{project.role}</dd>
           </div>
           <div className="flex gap-2 text-xs">
-            <dt className="shrink-0 font-mono text-zinc-500 w-16">Stack</dt>
-            <dd className="font-mono text-zinc-300">{project.stack.join(' \u00b7 ')}</dd>
+            <dt className="shrink-0 w-14 font-mono text-zinc-600">Stack</dt>
+            <dd className="flex flex-wrap gap-1">
+              {project.stack.slice(0, 4).map((tech) => (
+                <TechPill key={tech} label={tech} />
+              ))}
+              {project.stack.length > 4 && (
+                <span className="font-mono text-zinc-600">+{project.stack.length - 4}</span>
+              )}
+            </dd>
           </div>
           <div className="flex gap-2 text-xs">
-            <dt className="shrink-0 font-mono text-zinc-500 w-16">Impact</dt>
+            <dt className="shrink-0 w-14 font-mono text-zinc-600">Impact</dt>
             <dd className="text-accent">{project.impact}</dd>
           </div>
         </dl>

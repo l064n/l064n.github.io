@@ -2,6 +2,10 @@
 const nextMDX = require('@mdx-js/loader');
 
 const nextConfig = {
+  // Static export for GitHub Pages
+  output: 'export',
+  // Served at https://l064n.github.io/portfolio-three/
+  basePath: '/portfolio-three',
   pageExtensions: ['ts', 'tsx', 'mdx'],
   webpack: (config) => {
     config.module.rules.push({
