@@ -1,0 +1,49 @@
+---
+title: Ender 3 Pro Precision Build
+date: 2025-12-01
+status: Active
+role: Mechanical Design Lead
+stack: [Marlin, BLTouch, Klipper, Fusion 360]
+impact: Achieved ±0.05 mm dimensional tolerance on 20 mm calibration cubes from consumer hardware
+categories: [Fabrication]
+description: In-depth modification of a Creality Ender 3 Pro FDM printer: BLTouch auto-bed leveling, microstepping recalibration (1/16 to 1/256), Z-offset tuning to ±0.01 mm, and custom Marlin firmware with linear advance.
+---
+
+## The premise
+
+A stock Ender 3 Pro is a decent $200 printer and a bad $200 precision instrument. The gap between those two is almost entirely firmware and driver configuration, not hardware. The goal was to get the 20 mm calibration cube — the standard FDM precision benchmark — into sub-0.05 mm dimensional tolerance without spending more than the cost of a second printer.
+
+## Driver & microstepping
+
+The biggest single win: the stock NEMA 17 drivers run at **1/16 microstepping**, which is too coarse for the print speeds I wanted. Moving to 1/256 microstepping on the X, Y, and E axes:
+
+```
+M92 X80 Y80 Z8 E93    ; steps/mm (verify per-extruder)
+M350 256 T1           ; 1/256 microstepping, full current
+```
+
+That alone cut visible staircase artifacts on diagonal surfaces and tightened the cube's XY dimensions by roughly 0.1 mm.
+
+## Bed leveling & Z-offset
+
+The BLTouch handles the macro-level bed plane, but the **Z-offset** is where first-layer adhesion lives. I tuned it to ±0.01 mm using the "squash" method: print a single line at 0.2 mm, and the offset is correct when the line squashes to about 1.2× its nozzle height. Getting this wrong is the #1 cause of "my printer is inconsistent" complaints — it isn't the printer, it's the Z-offset drifting.
+
+## Linear advance
+
+For the precision work, I switched to **Klipper with linear advance**. Linear advance compensates for the pressure buildup in the hotend during direction changes — the classic "oozing at corners" and "missing material on start" artifacts. The `advance_k` value for a 0.4 mm brass nozzle at 240°C is in the neighborhood of 0.05–0.09, and I calibrated it by printing a series of 5×5 mm squares at increasing flow rates.
+
+## Results
+
+The current 20 mm cube, printed at 60 mm/s with 0.16 mm layers:
+
+| Axis | Target | Measured | Delta |
+|------|--------|----------|-------|
+| X | 20.00 mm | 20.04 mm | +0.04 |
+| Y | 20.00 mm | 20.02 mm | +0.02 |
+| Z | 20.00 mm | 19.97 mm | −0.03 |
+
+That's within ±0.05 mm on all three axes from consumer hardware — a result that, a few years ago, required a printer four times the price.
+
+## What's next
+
+A CoreXY conversion is in the design phase in Fusion 360. The Ender's i3-style kinematics are fine for precision but slow for the large-format work I want to do. The kinematics swap is the single biggest remaining ceiling on speed without sacrificing the tolerances I've dialed in.

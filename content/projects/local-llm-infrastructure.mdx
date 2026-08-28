@@ -1,0 +1,42 @@
+---
+title: Local LLM Infrastructure
+date: 2025-11-15
+status: Active
+role: Lead Systems Engineer
+stack: [CUDA, PyTorch, vLLM, Docker, Proxmox, ROCm]
+impact: 40% latency reduction for 70B-parameter inference across a heterogeneous GPU fleet
+categories: [Infrastructure]
+description: Multi-GPU cluster orchestration for local large-language-model inference, spanning RTX 3090, MI50, and Jetson AGX Orin nodes with custom NVLink topology planning and liquid-cooling integration.
+---
+
+## Why local
+
+Running 70B-class models locally was never a statement against the cloud — it was a constraint problem. Latency, egress costs on large context windows, and data locality for certain workloads made an on-prem cluster the only viable answer for some of my experimentation. The catch: consumer and prosumer silicon is heterogeneous, and the tooling assumes it isn't.
+
+## Topology
+
+The cluster spans three node classes:
+
+- **RTX 3090 (24 GB)** — primary interactive node, CUDA-native, fastest path for vLLM
+- **Dual MI50 (64 GB HBM2)** — the memory monster. 32 GB each, but ROCm support for modern inference stacks is the friction point
+- **Jetson AGX Orin (32 GB unified)** — edge validation node; the models that must run here are the ones that "ship"
+
+The MI50 pair is the interesting problem. 64 GB of HBM2 sounds like it should run 70B at Q4 with room to spare — and it does — but the stack has to be hand-tuned: ROCm 6.x, PyTorch built for gfx906, and vLLM with the ROCm wheel rather than the CUDA one.
+
+## The 40% number
+
+Where the latency win actually came from:
+
+1. **Batching discipline** — vLLM's PagedAttention with a tuned `max_num_batched_tokens` for the actual workload (mostly 8k-context chat, not 32k batched evals)
+2. **NVLink-aware placement** — keeping a 70B Q4 tensor-parallel split on the MI50 pair over PCIe-only topology, cutting inter-GPU sync time substantially
+3. **KV cache memory management** — sizing the KV cache pool explicitly instead of letting it default, which was silently stealing activation memory on the 3090
+
+The before/after is documented in [my cluster optimization notes](/notes/multi-gpu-cluster-optimization) — the full measurements, rocm-smi traces, and the cooling setup are there.
+
+## Liquid cooling
+
+The MI50s run in a custom loop. Stock air cooling on a pair of 300W cards in a 2U chassis hits thermal throttle within minutes of sustained generation. The loop (reservoir → CPU block → 2× GPU backplates → 360mm rad) holds the cards at roughly 55°C under sustained load, which is the difference between a stable cluster and one that sheds load every twenty minutes.
+
+## What's next
+
+The Jetson node is the current bottleneck of interest: distilling a 7B that actually matches the 70B on the domain-specific eval set, running entirely on unified memory with zero swap. That's the open problem.

@@ -11,7 +11,12 @@ import {
   CommandList,
 } from 'cmdk';
 import { Globe, FolderOpen, FileText, Briefcase } from 'lucide-react';
-import { projects } from '@/lib/data';
+
+export interface PaletteProject {
+  slug: string;
+  title: string;
+  categories: string[];
+}
 
 const pageCommands = [
   { value: '/', label: 'Dashboard', icon: Globe },
@@ -20,7 +25,7 @@ const pageCommands = [
   { value: '/experience', label: 'Experience', icon: Briefcase },
 ];
 
-export function CommandPalette() {
+export function CommandPalette({ projects = [] }: { projects?: PaletteProject[] }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -64,7 +69,7 @@ export function CommandPalette() {
             <CommandItem
               key={project.slug}
               value={`${project.title.toLowerCase()} ${project.categories.join(' ')}`}
-              onSelect={() => runCommand(`/projects`)}
+              onSelect={() => runCommand(`/projects/${project.slug}`)}
             >
               <FolderOpen className="mr-2 h-4 w-4 text-zinc-500" />
               <span>{project.title}</span>

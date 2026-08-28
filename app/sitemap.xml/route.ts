@@ -1,11 +1,13 @@
 import { siteConfig } from '@/lib/data';
 import { getAllPostsMetadata } from '@/lib/mdx';
+import { getAllProjectsMetadata } from '@/lib/projects';
 
 export const dynamic = 'force-static';
 
 export function GET() {
   const lastModified = new Date().toISOString();
   const posts = getAllPostsMetadata();
+  const projects = getAllProjectsMetadata();
   const tags = Array.from(new Set(posts.flatMap((p) => p.tags))).sort();
 
   const entries: { url: string; changeFrequency: string; priority: number }[] = [
@@ -13,6 +15,11 @@ export function GET() {
     { url: `${siteConfig.url}/projects`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${siteConfig.url}/notes`, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${siteConfig.url}/experience`, changeFrequency: 'yearly', priority: 0.7 },
+    ...projects.map((p) => ({
+      url: `${siteConfig.url}/projects/${p.slug}`,
+      changeFrequency: 'yearly',
+      priority: 0.7,
+    })),
     ...posts.map((p) => ({
       url: `${siteConfig.url}/notes/${p.slug}`,
       changeFrequency: 'yearly',

@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CommandPalette } from '@/components/layout/CommandPalette';
+import { CommandPalette, type PaletteProject } from '@/components/layout/CommandPalette';
 import { navLinks } from '@/lib/data';
 import { Keyboard, Globe } from 'lucide-react';
 
-export function Header() {
+export function Header({ projects }: { projects?: PaletteProject[] }) {
   const pathname = usePathname();
 
   const segments = pathname.split('/').filter(Boolean);
@@ -20,7 +20,7 @@ export function Header() {
 
   return (
     <>
-      <CommandPalette />
+      <CommandPalette projects={projects} />
       <header className="sticky top-0 z-50 border-b border-[#1a1a1a]/60 bg-[#09090b]/70 backdrop-blur-xl">
         <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Breadcrumb Nav */}

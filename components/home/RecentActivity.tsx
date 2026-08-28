@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, FileText, FolderGit2, BrainCircuit, Wrench, Terminal, Briefcase } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import { projects } from '@/lib/data';
+import type { ProjectFrontmatter } from '@/content/projects/project-schema';
 
 interface NoteMeta {
   slug: string;
@@ -48,8 +48,17 @@ function noteIcon(tag: string | undefined) {
   }
 }
 
-export function RecentActivity({ posts }: { posts: NoteMeta[] }) {
-  const latestProject = [...projects].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+interface ProjectMeta extends ProjectFrontmatter {
+  slug: string;
+}
+
+export function RecentActivity({
+  posts,
+  latestProject,
+}: {
+  posts: NoteMeta[];
+  latestProject?: ProjectMeta | null;
+}) {
 
   return (
     <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
@@ -106,7 +115,7 @@ export function RecentActivity({ posts }: { posts: NoteMeta[] }) {
         {latestProject && (
           <motion.div variants={itemVariant}>
             <Link
-              href="/projects"
+              href={`/projects/${latestProject.slug}`}
               className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
             >
               <div className={iconStyles('bg-accent-dim text-accent')}>

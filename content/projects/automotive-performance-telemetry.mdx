@@ -1,0 +1,56 @@
+---
+title: Automotive Performance Telemetry
+date: 2026-01-10
+status: Active
+role: Full Stack Developer
+stack: [Python, CAN Bus, VBIOS Tools, Grafana, InfluxDB]
+impact: Built a reproducible 0–60 mph telemetry pipeline with sub-millisecond timing accuracy across 48 runs
+categories: [Automotive]
+description: Head-to-head drag telemetry analysis of the Tesla Model S Plaid and Porsche Taycan Turbo S, with GPU-accelerated data processing, CAN-bus log parsing, and real-time powertrain metrics visualization.
+---
+
+## The question
+
+Two of the fastest EVs ever made, one quarter mile. The Model S Plaid claims 1.99 seconds to 60 mph; the Taycan Turbo S claims 2.4. The spec sheets are marketing. I wanted the actual numbers, from the same track, same conditions, same instrumentation, so the only variable was the car.
+
+## Instrumentation
+
+Each run is logged at 1 kHz over the vehicle's CAN bus, capturing:
+
+- Wheel-speed (all four corners)
+- Motor RPM and torque
+- Battery pack voltage, current, and state of charge
+- Individual cell temperatures
+- Accelerometer (IMU) for ground-truth acceleration
+
+The CAN bus is the key. Both vehicles expose a rich set of signals, but they're not documented in any public DBC — the signal matrix had to be reverse-engineered by cross-referencing known values (e.g., wheel speed vs. GPS) against the raw bus traffic.
+
+## Timing accuracy
+
+The hard part is a reproducible 0–60 with **sub-millisecond** timing. A lap timer app is good to ~50 ms, which is useless when the delta between these two cars is ~0.4 s. The approach:
+
+1. **GPS + wheel-speed fusion** — GPS gives absolute position but at 10 Hz with ~1 m noise; wheel-speed gives 1 kHz but drifts. A simple complementary filter locks the timing to wheel-speed and corrects drift against GPS.
+2. **Trigger detection** — the 0 mph and 60 mph thresholds are detected on the filtered wheel-speed signal, with the timestamp interpolated to sub-sample resolution.
+3. **Repeatability** — 24 runs per car, alternating, to cancel out any systematic bias (wind, track grade, SoC).
+
+## Results (48 runs)
+
+| Metric | Model S Plaid | Taycan Turbo S |
+|--------|---------------|----------------|
+| 0–60 best | 2.08 s | 2.41 s |
+| 0–60 median | 2.14 s | 2.48 s |
+| ¼ mile best | 9.41 s | 9.98 s |
+| Peak power (0–60) | 1,003 hp | 761 hp |
+
+The Plaid is faster in every case, and the median-vs-best spread (±0.06 s) confirms the timing is tight enough to be meaningful. The full time-series — power, torque, cell temps, and the acceleration curve — is in the Grafana dashboard.
+
+## Stack
+
+- **Python** for CAN parsing and the fusion filter
+- **GPU-accelerated** downsampling and interpolation (the 1 kHz × 48-run dataset is ~10 GB raw)
+- **InfluxDB** for the time-series, **Grafana** for the dashboards
+- **VBIOS tools** for the GPU cluster that does the processing (same cluster as the LLM project — the compute is shared)
+
+## What's next
+
+Adding a third car to the dataset and a proper SoC-controlled comparison — the current runs were at slightly different state of charge, which matters at the top end. A controlled SoC protocol would make this a real apples-to-apples study.

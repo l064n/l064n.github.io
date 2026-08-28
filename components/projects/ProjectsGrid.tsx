@@ -2,19 +2,22 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ProjectCard } from '@/components/projects/ProjectCard';
+import { ProjectCard, type ProjectWithSlug } from '@/components/projects/ProjectCard';
 import { FilterBar } from '@/components/projects/FilterBar';
-import { projects, type Project } from '@/lib/data';
 
-export function ProjectsGrid() {
+interface ProjectsGridProps {
+  projects: ProjectWithSlug[];
+}
+
+export function ProjectsGrid({ projects }: ProjectsGridProps) {
   const [activeCategory, setActiveCategory] = useState<string>('All');
 
   const filteredProjects = useMemo(
     () =>
       activeCategory === 'All'
         ? projects
-        : projects.filter((p) => p.categories.includes(activeCategory as Project['categories'][number])),
-    [activeCategory]
+        : projects.filter((p) => p.categories.includes(activeCategory)),
+    [projects, activeCategory]
   );
 
   return (

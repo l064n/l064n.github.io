@@ -26,23 +26,16 @@ export function getAllPostsMetadata(): (PostFrontmatter & { slug: string; bodyOn
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-/** Get frontmatter for a single post by slug using custom YAML parser. */
-export function getPostMetadata(slug: string): PostFrontmatter {
-  const fullPath = path.join(notesDirectory, `${slug}.mdx`);
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-  // Extract YAML-like frontmatter between --- delimiters
+/** Minimal YAML frontmatter parser (scalars + [inline, arrays]). */
+export function parseFrontmatter(fileContents: string): Record<string, unknown> | null {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
   const match = fileContents.match(frontmatterRegex);
 
-  if (!match) {
-    throw new Error(`No frontmatter found in ${slug}.mdx`);
-  }
+  if (!match) return null;
 
-  const frontmatterBlock = match[1];
   const metadata: Partial<Record<string, unknown>> = {};
 
-  frontmatterBlock.split('\n').forEach((line) => {
+  match[1].split('\n').forEach((line) => {
     const colonIndex = line.indexOf(':');
     if (colonIndex === -1) return;
 
@@ -58,11 +51,24 @@ export function getPostMetadata(slug: string): PostFrontmatter {
     }
   });
 
+  return metadata as Record<string, unknown>;
+}
+
+/** Get frontmatter for a single post by slug. */
+export function getPostMetadata(slug: string): PostFrontmatter {
+  const fullPath = path.join(notesDirectory, `${slug}.mdx`);
+  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const metadata = parseFrontmatter(fileContents);
+
+  if (!metadata) {
+    throw new Error(`No frontmatter found in ${slug}.mdx`);
+  }
+
   return metadata as unknown as PostFrontmatter;
 }
 
 /** MDX components map — injects custom Callout and CodeBlock. */
-const mdxComponents = {
+export const mdxComponents = {
   Callout,
   CustomCodeBlock,
 };
