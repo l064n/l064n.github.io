@@ -3,11 +3,11 @@
 
 Expected environment:
   NAME  display name of this node (used in the site readout)
-  ROLE  optional role label (inference, training, embedded, ...)
+  ROLE  optional role label (compute, inference, training, embedded, ...)
 
-Supports nvidia-smi (NVIDIA), rocm-smi (AMD), and falls back to an empty
-GPU list (e.g. Jetson, where no smi tool exists) — the node still reports
-online.
+Supports nvidia-smi (NVIDIA / Jetson) and rocm-smi (AMD, incl. rocm-smi 3.x
+output format). Unsupported fields (e.g. Jetson utilization) are reported as
+null — the node still reports online.
 """
 
 import json
@@ -26,6 +26,17 @@ def run(cmd, timeout=12):
         return ""
 
 
+def num(value):
+    """Parse a numeric field that may be 'N/A', '[N/A]' or empty."""
+    if value is None:
+        return None
+    v = str(value).strip().lstrip("[]").rstrip("]").strip()
+    try:
+        return float(v)
+    except ValueError:
+        return None
+
+
 def collect_nvidia():
     if not shutil.which("nvidia-smi"):
         return None
@@ -41,45 +52,83 @@ def collect_nvidia():
         parts = [p.strip() for p in line.split(",")]
         if len(parts) < 6:
             continue
-        try:
-            gpus.append(
-                {
-                    "name": parts[0],
-                    "util": int(float(parts[1])),
-                    "temp": int(float(parts[2])),
-                    "memUsed": round(float(parts[3]) / 1024, 1),
-                    "memTotal": round(float(parts[4]) / 1024, 1),
-                    "power": round(float(parts[5]), 1),
-                }
-            )
-        except ValueError:
-            continue
+        name = parts[0]
+        util = num(parts[1])
+        temp = num(parts[2])
+        mem_used = num(parts[3])
+        mem_total = num(parts[4])
+        power = num(parts[5])
+        gpus.append(
+            {
+                "name": name,
+                "util": int(util) if util is not None else None,
+                "temp": int(temp) if temp is not None else None,
+                "memUsed": round(mem_used / 1024, 1) if mem_used is not None else None,
+                "memTotal": round(mem_total / 1024, 1) if mem_total is not None else None,
+                "power": round(power, 1) if power is not None else None,
+            }
+        )
     return gpus or None
+
+
+def gpu_chip_names():
+    """Best-effort per-GPU chip names from lspci (skips BMC/embedded VGA)."""
+    out = run(["lspci"])
+    names = {}
+    n = 0
+    for line in out.splitlines():
+        low = line.lower()
+        if not any(k in low for k in ("vga", "display controller", "3d controller")):
+            continue
+        if any(k in low for k in ("aspeed", "nvidia", "cirrus", "qxl", "vmware", "virtual")):
+            continue
+        part = line.split(":", 2)[-1].strip()
+        # "Advanced Micro Devices, Inc. [AMD/ATI] Vega 20 [Radeon Pro ...]" -> "Vega 20"
+        chip = part.split("[AMD/ATI]")[-1].strip()
+        chip = re.sub(r"\s*\[.*\]", "", chip).strip()
+        if chip:
+            names[str(n)] = chip
+        n += 1
+    return names
 
 
 def collect_rocm():
     if not shutil.which("rocm-smi"):
         return None
-    table = run(["rocm-smi", "--showuse", "--showtemp", "--showmemuse", "--showpower"])
-    names = run(["rocm-smi"])
+    stats = run(["rocm-smi", "--showuse", "--showtemp", "--showpower"])
+    vram = run(["rocm-smi", "--showmeminfo", "vram"])
+    names = gpu_chip_names()
 
     data = {}
 
-    def idx(idx, key, value):
-        data.setdefault(idx, {})[key] = value
+    def idx(gpu, key, value):
+        data.setdefault(gpu, {})[key] = value
 
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU use \(%\)\s*:\s*(\d+)", table):
+    # utilization (same in old and new formats)
+    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU use \(%\)\s*:\s*(\d+)", stats):
         idx(m.group(1), "util", int(m.group(2)))
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU temp \(degC\)\s*:\s*(\d+)", table):
-        idx(m.group(1), "temp", int(m.group(2)))
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU memory use \(MB\)\s*:\s*(\d+)", table):
-        idx(m.group(1), "memUsed", round(int(m.group(2)) / 1024, 1))
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU memory total \(MB\)\s*:\s*(\d+)", table):
-        idx(m.group(1), "memTotal", round(int(m.group(2)) / 1024, 1))
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU power \(W\)\s*:\s*([\d.]+)", table):
+    # temperature: rocm-smi 3.x "Temperature (Sensor edge) (C)", legacy "GPU temp (degC)"
+    for m in re.finditer(
+        r"GPU\[(\d+)\]\s*:\s*(?:Temperature \(Sensor edge\)|GPU temp) \((?:C|degC)\)\s*:\s*([\d.]+)",
+        stats,
+    ):
+        idx(m.group(1), "temp", int(float(m.group(2))))
+    # power: rocm-smi 3.x "Current Socket Graphics Package Power (W)", legacy "GPU power (W)"
+    for m in re.finditer(
+        r"GPU\[(\d+)\]\s*:\s*(?:Current Socket Graphics Package Power|GPU power) \(W\)\s*:\s*([\d.]+)",
+        stats,
+    ):
         idx(m.group(1), "power", float(m.group(2)))
-    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*Device Name:\s*(.+)", names):
-        idx(m.group(1), "name", m.group(2).strip())
+    # memory: rocm-smi 3.x reports bytes via --showmeminfo vram
+    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*VRAM Total Used Memory \(B\)\s*:\s*(\d+)", vram):
+        idx(m.group(1), "memUsed", round(int(m.group(2)) / 1024**3, 1))
+    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*VRAM Total Memory \(B\)\s*:\s*(\d+)", vram):
+        idx(m.group(1), "memTotal", round(int(m.group(2)) / 1024**3, 1))
+    # legacy rocm-smi reported MB in the stats table
+    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU memory use \(MB\)\s*:\s*(\d+)", stats):
+        idx(m.group(1), "memUsed", round(int(m.group(2)) / 1024, 1))
+    for m in re.finditer(r"GPU\[(\d+)\]\s*:\s*GPU memory total \(MB\)\s*:\s*(\d+)", stats):
+        idx(m.group(1), "memTotal", round(int(m.group(2)) / 1024, 1))
 
     if not data:
         return None
@@ -89,7 +138,7 @@ def collect_rocm():
         gpu = data[i]
         gpus.append(
             {
-                "name": gpu.get("name", f"AMD GPU {i}"),
+                "name": gpu.get("name") or names.get(i) or f"AMD GPU {i}",
                 "util": gpu.get("util"),
                 "temp": gpu.get("temp"),
                 "memUsed": gpu.get("memUsed"),
