@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { StatusDot } from '@/components/ui/StatusDot';
 
 // three.js is heavy; load the cluster scene out-of-band
@@ -9,6 +10,13 @@ const GpuClusterScene = dynamic(
   () => import('@/components/home/GpuClusterScene').then((m) => m.GpuClusterScene),
   { ssr: false, loading: () => <div className="h-full w-full" /> }
 );
+
+interface Telemetry {
+  shape: string;
+  palette: string;
+  fps: number;
+  particles: number;
+}
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
@@ -35,6 +43,7 @@ const GridPattern = () => (
 );
 
 export function HeroSection() {
+  const [tel, setTel] = useState<Telemetry | null>(null);
   return (
     <section className="relative mx-auto max-w-6xl px-4 pt-16 pb-12 sm:px-6 sm:pt-24 sm:pb-16">
       <GridPattern />
@@ -121,19 +130,21 @@ export function HeroSection() {
             <span className="size-2.5 rounded-full bg-zinc-700/80" />
             <span className="size-2.5 rounded-full bg-zinc-700/80" />
             <span className="ml-2 font-mono text-[11px] text-zinc-500">
-              gpu_cluster --topology
+              cluster_viz --constellation
             </span>
             <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-emerald-400/80">
               <StatusDot variant="online" pulse={false} />
               live
             </span>
           </div>
-          <GpuClusterScene />
+          <GpuClusterScene onTelemetry={setTel} />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between border-t border-zinc-800/60 bg-[#0b0b0d]/80 px-3 py-1.5 backdrop-blur">
             <span className="font-mono text-[10px] text-zinc-600">
-              4 nodes · 10GbE fabric
+              {tel ? `${tel.shape} · ${tel.palette}` : 'initializing…'}
             </span>
-            <span className="font-mono text-[10px] text-zinc-500">drag to rotate</span>
+            <span className="font-mono text-[10px] text-zinc-500">
+              {tel ? `${tel.fps} fps · ${tel.particles} pts · ` : ''}drag to rotate
+            </span>
           </div>
         </motion.div>
       </div>
