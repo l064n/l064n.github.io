@@ -1,6 +1,6 @@
 # l064n — Personal Site
 
-[logan.dev](https://logan.dev) — portfolio, technical notes, and live cluster telemetry.
+[l064n.github.io](https://l064n.github.io) — portfolio, technical notes, and live cluster telemetry.
 Built with Next.js 15 (App Router, static export), Tailwind CSS, MDX, Framer Motion, and react-three-fiber.
 
 ## Architecture
@@ -44,8 +44,7 @@ npm run lint      # eslint (next/core-web-vitals + typescript)
 `push → main` triggers `.github/workflows/deploy.yml`:
 build → convert flat `.html` to directory `index.html` (GitHub Pages requires this) → deploy to Pages.
 
-The site serves on **logan.dev** (CNAME in `public/`) with **l064n.github.io** as fallback.
-Point a `CNAME` DNS record for `logan.dev` at `l064n.github.io`.
+The site serves on **https://l064n.github.io**.
 
 `paths-ignore` keeps telemetry pushes (`public/status.json`) from triggering full site rebuilds.
 

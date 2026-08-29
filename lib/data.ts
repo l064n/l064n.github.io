@@ -13,7 +13,7 @@ export interface ExperienceEntry {
 
 export const siteConfig = {
   name: 'Logan Matthew Phillips',
-  url: 'https://logan.dev',
+  url: 'https://l064n.github.io',
   location: 'Oakland, California (Bay Area)',
   education: 'UC Santa Cruz (UCSC)',
   currentTitle: 'Systems Integration Engineer at Zoox',

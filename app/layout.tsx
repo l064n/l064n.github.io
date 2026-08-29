@@ -25,10 +25,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://logan.dev'),
+  metadataBase: new URL('https://l064n.github.io'),
   title: {
     default: 'Logan Matthew Phillips \u2014 Systems Integration Engineer',
-    template: '%s \u00b7 logan.dev',
+    template: '%s \u00b7 l064n.github.io',
   },
   description:
     'Autonomous vehicle infrastructure, hardware orchestration, and local LLM compute. Oakland, CA.',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'logan.dev',
+    siteName: 'l064n.github.io',
     locale: 'en_US',
     images: [
       {
