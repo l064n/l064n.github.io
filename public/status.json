@@ -1,56 +1,43 @@
 {
-  "generatedAt": "2026-08-28T22:00:00Z",
+  "generatedAt": "2026-08-29T01:23:46Z",
   "nodes": [
     {
-      "name": "mi50-a",
-      "role": "inference",
+      "name": "big-brain2",
+      "role": "compute",
       "online": true,
       "gpus": [
         {
-          "name": "AMD Instinct MI50",
+          "name": "Vega 20",
           "util": 0,
-          "temp": 38,
-          "memUsed": 1.2,
-          "memTotal": 32,
-          "power": 31
+          "temp": 66,
+          "memUsed": 23.1,
+          "memTotal": 32.0,
+          "power": 29.0
+        },
+        {
+          "name": "Vega 20",
+          "util": 0,
+          "temp": 70,
+          "memUsed": 21.8,
+          "memTotal": 32.0,
+          "power": 30.0
         }
       ]
     },
     {
-      "name": "mi50-b",
-      "role": "training",
+      "name": "small-brain",
+      "role": "edge",
       "online": true,
       "gpus": [
         {
-          "name": "AMD Instinct MI50",
-          "util": 0,
-          "temp": 39,
-          "memUsed": 0.8,
-          "memTotal": 32,
-          "power": 29
+          "name": "Orin (nvgpu)",
+          "util": null,
+          "temp": null,
+          "memUsed": null,
+          "memTotal": null,
+          "power": null
         }
       ]
-    },
-    {
-      "name": "rtx-3090",
-      "role": "inference",
-      "online": true,
-      "gpus": [
-        {
-          "name": "NVIDIA GeForce RTX 3090",
-          "util": 0,
-          "temp": 35,
-          "memUsed": 0.4,
-          "memTotal": 24,
-          "power": 22
-        }
-      ]
-    },
-    {
-      "name": "jetson-orin",
-      "role": "embedded",
-      "online": true,
-      "gpus": []
     }
   ]
 }
