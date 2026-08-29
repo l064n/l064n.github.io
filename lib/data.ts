@@ -38,7 +38,7 @@ export const experienceTimeline: ExperienceEntry[] = [
   {
     company: 'Zoox',
     title: 'Systems Integration Engineer',
-    period: '2024 — Present',
+    period: 'April 2025 — Present',
     milestones: [
       'Orchestrated autonomous vehicle test-fleet infrastructure across Bay Area operations',
       'Built hardware-in-the-loop validation pipelines for perception stack integration',
@@ -49,7 +49,7 @@ export const experienceTimeline: ExperienceEntry[] = [
   {
     company: 'Monarch Tractor',
     title: 'Systems Engineer',
-    period: '2020 — 2024',
+    period: 'February 2020 — April 2025',
     milestones: [
       'Developed embedded systems integration for next-gen electric tractor platform (M1)',
       'Built CAN-bus telemetry and diagnostics infrastructure for field-deployed units',
