@@ -54,7 +54,7 @@ export const experienceTimeline: ExperienceEntry[] = [
       'Developed embedded systems integration for next-gen electric tractor platform (M1)',
       'Built CAN-bus telemetry and diagnostics infrastructure for field-deployed units',
       'Led hardware bring-up for custom PCBs with STM32 and NXP S32G processors',
-      'Established CI/CD pipeline for embedded firmware flashing across 50+ test vehicles',
+      'Established CI/CD pipeline for embedded firmware flashing across all production vehicles',
     ],
   },
 ];
