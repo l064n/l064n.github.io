@@ -422,3 +422,129 @@ body::after {
 .prose-custom tr:nth-child(even) td {
   background-color: rgba(255, 255, 255, 0.02);
 }
+
+/* ── Command Palette (cmdk) ─────────────────────────────── */
+/* cmdk renders an unstyled Radix dialog portal — all visual
+   treatment must come from these [cmdk-*] attribute selectors. */
+
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: rgba(3, 3, 6, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+[cmdk-dialog] {
+  position: fixed;
+  top: min(20vh, 220px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 101;
+  width: min(620px, calc(100vw - 2rem));
+  max-height: min(70vh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  color: var(--text-primary);
+}
+
+[cmdk-input] {
+  display: block;
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: var(--text-primary);
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  outline: none;
+}
+
+[cmdk-input]::placeholder {
+  color: var(--text-muted);
+}
+
+[cmdk-list] {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem;
+}
+
+[cmdk-group-heading] {
+  padding: 0.5rem 0.6rem 0.25rem;
+  font-size: var(--text-xs);
+  font-family: var(--font-jetbrains-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 8px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[cmdk-item][data-selected='true'] {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+[cmdk-item][data-disabled='true'] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+[cmdk-empty] {
+  padding: 1.5rem 0.6rem;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+[cmdk-separator] {
+  height: 1px;
+  margin: 0.25rem 0.5rem;
+  background-color: var(--border-subtle);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [cmdk-overlay] {
+    animation: cmdk-fade-in 120ms ease-out;
+  }
+  [cmdk-dialog] {
+    animation: cmdk-pop-in 140ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes cmdk-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cmdk-pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.98) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
