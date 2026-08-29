@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://logan.dev/sitemap.xml
+Sitemap: https://l064n.github.io/sitemap.xml
