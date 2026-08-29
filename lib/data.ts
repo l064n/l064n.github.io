@@ -49,7 +49,7 @@ export const experienceTimeline: ExperienceEntry[] = [
   {
     company: 'Monarch Tractor',
     title: 'Systems Engineer',
-    period: '2021 — 2024',
+    period: '2020 — 2024',
     milestones: [
       'Developed embedded systems integration for next-gen electric tractor platform (M1)',
       'Built CAN-bus telemetry and diagnostics infrastructure for field-deployed units',
