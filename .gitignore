@@ -35,3 +35,6 @@ dist/
 # Misc
 coverage/
 *.log
+
+# Python
+__pycache__/

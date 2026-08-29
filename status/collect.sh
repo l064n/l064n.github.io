@@ -11,16 +11,19 @@
 #      */5 * * * * /path/to/l064n.github.io/status/collect.sh >> /tmp/cluster-status.log 2>&1
 set -uo pipefail
 
+# cron's PATH is minimal — make sure nvidia-smi/rocm-smi/lspci are found.
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 BRANCH="main"
 
 # "display name|ssh target|role"  — use "local" as target to collect on this machine.
+# This script is meant to run on big-brain2 (the 2x MI50 node), which reaches
+# small-brain over ssh (key-based auth must be set up on big-brain2).
 NODES=(
-  "mi50-a|local|inference"
-  "mi50-b|local|training"
-  "rtx-3090|local|inference"
-  "jetson-orin|user@jetson|embedded"
+  "big-brain2|local|compute"
+  "small-brain|x1@small-brain|edge"
 )
 
 tmp="$(mktemp -d)"
