@@ -60,17 +60,38 @@ The home page dashboard shows real GPU telemetry. Flow:
 4. The client component (`ClusterStatus`) polls `raw.githubusercontent.com` every 60s —
    the site updates without a deploy; the committed `status.json` is the offline fallback
 
-### Setting up the cluster daemon
+### Live cluster topology
 
-1. Clone this repo on the cluster
-2. `git config credential.helper store` (a fine-grained PAT with **Contents: write** on this
-   repo only, stored on first `git push`)
-3. Edit the `NODES` array in `status/collect.sh` — format: `name|target|role`,
-   where `target` is `local` or an ssh address
-4. Cron:
-   ```
-   */5 * * * * /path/to/repo/status/collect.sh >> /tmp/cluster-status.log 2>&1
-   ```
+The daemon runs on **big-brain2** (2× MI50, Ubuntu 24.04 — the aggregator)
+and reaches **small-brain** (Jetson Orin) over key-based ssh:
+
+| Node        | Hardware                          | Role    | Collector          |
+| ----------- | --------------------------------- | ------- | ------------------ |
+| big-brain2  | 2× AMD Radeon Instinct MI50 32 GB | compute | local (rocm-smi 3.x) |
+| small-brain | NVIDIA Jetson (Orin)              | edge    | `x1@small-brain` (ssh) |
+
+What's configured (survives reboots):
+
+- **SSH keys**: ed25519 — Mac → both nodes, big-brain2 → small-brain
+  (`~/.ssh/authorized_keys` on each node; no passwords anywhere in the chain)
+- **Push credential**: fine-grained PAT on big-brain2 (`~/.git-credentials`,
+  mode 600) with Contents read+write on *this repo only*, via
+  `credential.helper store`
+- **Cron** (user `logan` on big-brain2, cron service enabled at boot):
+  `*/5 * * * * /home/logan/l064n.github.io/status/collect.sh >> /tmp/cluster-status.log 2>&1`
+- **Reboot safety**: sshd is enabled on both nodes (big-brain2 via socket
+  activation), hostnames resolve via mDNS, `collect.sh` sets an explicit
+  `PATH` for cron's minimal environment, and offline nodes degrade to
+  `"online": false` instead of breaking the push
+
+### Re-provisioning the daemon (if ever needed)
+
+1. Clone this repo on the aggregator
+2. Store a fine-grained PAT (this repo only, **Contents: write**) in
+   `~/.git-credentials` (`git config --global credential.helper store`)
+3. Ensure key-based ssh from the aggregator to every remote node
+4. Edit the `NODES` array in `status/collect.sh` (`name|target|role`)
+5. Install the cron line above
 
 ## Adding content
 
