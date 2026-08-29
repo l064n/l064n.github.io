@@ -29,9 +29,9 @@ export function StatusDashboard() {
         <TerminalWindow title="system_status — bash">
           <div className="space-y-0.5 font-mono text-sm">
             {statusMetrics.map((metric: StatusMetric) => (
-              <motion.div key={metric.label} variants={rowVariant} className="flex gap-4 hover:bg-white/[0.02] rounded px-2 -mx-2 py-0.5 transition-colors">
-                <span className="shrink-0 w-36 truncate text-zinc-500">{metric.label}</span>
-                <span className="text-zinc-300">
+              <motion.div key={metric.label} variants={rowVariant} className="flex gap-3 hover:bg-white/[0.02] rounded px-2 -mx-2 py-0.5 transition-colors sm:gap-4">
+                <span className="shrink-0 w-20 truncate text-zinc-500 sm:w-36">{metric.label}</span>
+                <span className="min-w-0 break-words text-zinc-300">
                   {metric.indicator && (
                     <span className="mr-2">
                       <StatusDot variant={metric.indicator} pulse={false} />
