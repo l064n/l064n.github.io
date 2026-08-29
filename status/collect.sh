@@ -87,14 +87,23 @@ PY
 cd "$REPO_DIR"
 
 # Only push when the telemetry actually changed.
-git pull --rebase origin "$BRANCH" >/dev/null 2>&1 || true
 if [ -z "$(git status --porcelain -- public/status.json)" ]; then
   echo "$(date -u +%H:%M)Z status unchanged, skipping push"
   exit 0
 fi
 
+# Commit first, then sync: `pull --rebase` needs a clean working tree, and
+# committing before pulling means site commits pushed from elsewhere (e.g.
+# deploys) get rebased under the telemetry commit instead of deadlocking it.
 git add public/status.json
 git commit -m "status: cluster telemetry $(date -u +%H:%M)Z" >/dev/null
+
+if ! git pull --rebase origin "$BRANCH" >/dev/null 2>&1; then
+  git rebase --abort >/dev/null 2>&1 || true
+  echo "$(date -u +%H:%M)Z rebase failed, retrying next run"
+  exit 1
+fi
+
 git push origin "$BRANCH" >/dev/null 2>&1 \
   && echo "$(date -u +%H:%M)Z pushed status update" \
   || echo "$(date -u +%H:%M)Z push failed (check credentials)"
