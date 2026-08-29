@@ -105,7 +105,7 @@ export function ClusterStatus() {
   return (
     <div className="border-t border-zinc-800/60 pt-3">
       {/* header line */}
-      <div className="mb-2 flex items-center justify-between px-2 font-mono text-[11px] text-zinc-600">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 px-2 font-mono text-[11px] text-zinc-600">
         <span>
           <span className="text-accent">cluster</span> status —{' '}
           {onlineNodes}/{data.nodes.length} nodes · {totalGpus} gpus
@@ -120,35 +120,39 @@ export function ClusterStatus() {
         {data.nodes.map((node) => (
           <div
             key={node.name}
-            className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded px-2 -mx-2 py-0.5 font-mono text-xs hover:bg-white/[0.02]"
+            className="flex items-start gap-x-3 rounded px-2 -mx-2 py-0.5 font-mono text-xs hover:bg-white/[0.02]"
           >
-            <span className="flex w-28 shrink-0 items-center gap-2 text-zinc-500">
+            <span className="flex w-24 shrink-0 items-center gap-2 pt-[3px] text-zinc-500 sm:w-28">
               <StatusDot variant={node.online ? 'online' : 'offline'} pulse={false} />
               <span className="truncate">{node.name}</span>
             </span>
 
-            {node.online && node.gpus.length === 0 && (
-              <span className="text-zinc-600">idle (no smi telemetry)</span>
-            )}
+            {/* GPU readings wrap as a group so they stay left-aligned with
+                each other (never under the node name) on narrow screens. */}
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+              {node.online && node.gpus.length === 0 && (
+                <span className="text-zinc-600">idle (no smi telemetry)</span>
+              )}
 
-            {node.gpus.map((gpu, i) => (
-              <span key={i} className="flex items-center gap-2">
-                <UtilBar value={gpu.util ?? 0} active={(gpu.util ?? 0) > 5} />
-                <span className="text-zinc-500">{gpu.util ?? 0}%</span>
-                {typeof gpu.temp === 'number' && (
-                  <span
-                    className={
-                      gpu.temp > 85 ? 'text-red-400/90' : gpu.temp > 70 ? 'text-amber-500/80' : 'text-zinc-600'
-                    }
-                  >
-                    {gpu.temp}°C
-                  </span>
-                )}
-                {typeof gpu.power === 'number' && (
-                  <span className="hidden text-zinc-700 sm:inline">{Math.round(gpu.power)}W</span>
-                )}
-              </span>
-            ))}
+              {node.gpus.map((gpu, i) => (
+                <span key={i} className="flex items-center gap-2">
+                  <UtilBar value={gpu.util ?? 0} active={(gpu.util ?? 0) > 5} />
+                  <span className="text-zinc-500">{gpu.util ?? 0}%</span>
+                  {typeof gpu.temp === 'number' && (
+                    <span
+                      className={
+                        gpu.temp > 85 ? 'text-red-400/90' : gpu.temp > 70 ? 'text-amber-500/80' : 'text-zinc-600'
+                      }
+                    >
+                      {gpu.temp}°C
+                    </span>
+                  )}
+                  {typeof gpu.power === 'number' && (
+                    <span className="hidden text-zinc-700 sm:inline">{Math.round(gpu.power)}W</span>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
