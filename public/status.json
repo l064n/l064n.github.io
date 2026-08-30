@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-30T02:50:04Z",
+  "generatedAt": "2026-08-30T02:55:03Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -8,19 +8,19 @@
       "gpus": [
         {
           "name": "Vega 20",
-          "util": 100,
-          "temp": 73,
+          "util": 0,
+          "temp": 43,
           "memUsed": 22.9,
           "memTotal": 32.0,
-          "power": 220.0
+          "power": 25.0
         },
         {
           "name": "Vega 20",
-          "util": 100,
-          "temp": 78,
+          "util": 0,
+          "temp": 45,
           "memUsed": 21.8,
           "memTotal": 32.0,
-          "power": 215.0
+          "power": 28.0
         }
       ]
     },
