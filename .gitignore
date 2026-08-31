@@ -38,3 +38,7 @@ coverage/
 
 # Python
 __pycache__/
+
+# LilyGO T-QT firmware — separate repo (github.com/l064n/t-qt-constellation)
+t-qt-constellation/
+.vendor/
