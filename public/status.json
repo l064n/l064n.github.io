@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T05:35:04Z",
+  "generatedAt": "2026-09-01T05:40:04Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -9,18 +9,18 @@
         {
           "name": "Vega 20",
           "util": 100,
-          "temp": 68,
+          "temp": 73,
           "memUsed": 23.3,
           "memTotal": 32.0,
-          "power": 179.0
+          "power": 108.0
         },
         {
           "name": "Vega 20",
           "util": 100,
-          "temp": 75,
+          "temp": 78,
           "memUsed": 21.9,
           "memTotal": 32.0,
-          "power": 169.0
+          "power": 107.0
         }
       ]
     },
