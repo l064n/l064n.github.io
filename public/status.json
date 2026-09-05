@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-05T02:10:06Z",
+  "generatedAt": "2026-09-05T18:55:03Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -9,18 +9,9 @@
     },
     {
       "name": "small-brain",
-      "role": "edge",
-      "online": true,
-      "gpus": [
-        {
-          "name": "Orin (nvgpu)",
-          "util": null,
-          "temp": null,
-          "memUsed": null,
-          "memTotal": null,
-          "power": null
-        }
-      ]
+      "role": "",
+      "online": false,
+      "gpus": []
     }
   ]
 }
