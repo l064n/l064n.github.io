@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T17:45:02Z",
+  "generatedAt": "2026-09-07T17:50:02Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -9,26 +9,35 @@
         {
           "name": "Tesla V100-PCIE-32GB",
           "util": 0,
-          "temp": 41,
-          "memUsed": 23.3,
+          "temp": 54,
+          "memUsed": 23.5,
           "memTotal": 32.0,
-          "power": 38.5
+          "power": 48.5
         },
         {
           "name": "Tesla V100-PCIE-32GB",
-          "util": 0,
-          "temp": 46,
-          "memUsed": 25.3,
+          "util": 100,
+          "temp": 65,
+          "memUsed": 25.7,
           "memTotal": 32.0,
-          "power": 39.0
+          "power": 164.5
         }
       ]
     },
     {
       "name": "small-brain",
-      "role": "",
-      "online": false,
-      "gpus": []
+      "role": "edge",
+      "online": true,
+      "gpus": [
+        {
+          "name": "Orin (nvgpu)",
+          "util": null,
+          "temp": null,
+          "memUsed": null,
+          "memTotal": null,
+          "power": null
+        }
+      ]
     }
   ]
 }
