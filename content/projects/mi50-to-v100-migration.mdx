@@ -48,6 +48,27 @@ Two of them side-by-side gives 64 GB total HBM2 — identical capacity to the MI
 
 That's a **~2x generation speedup** and a **6x prefill speedup** on the exact same model. The V100s are actually *cooler* and *faster* — the CUDA multi-token prediction path (speculative decoding) unlocks throughput that was simply unavailable on the ROCm stack. Night and day difference; did not expect that.
 
+## Why prefill got 6x faster: tensor cores
+
+The 6x prefill gap isn't just a software story — it's hardware. LLM inference splits into two phases with opposite bottlenecks:
+
+- **Prefill (compute-bound):** the model processes the entire prompt in parallel. Every token attends to every other token, producing a full S×S attention matrix per head per layer. This is a massive batched matrix multiply — exactly what tensor cores are designed for.
+- **Decode / generation (memory-bound):** each new token requires a single dot product against the entire KV-cache. The dominant cost is streaming weights from HBM, not computation. Both cards have 900 GB/s HBM2, so the ceiling is similar.
+
+The V100 has **640 dedicated tensor cores** (8 per SM × 80 SMs) delivering **125 TFLOPS in FP16** for matrix operations. The MI50 (Vega 20) has no equivalent — it relies on standard matrix multiply-accumulate units at ~13 TFLOPS FP16. That's roughly a **10x compute throughput gap** in the exact workload (batched matmul) that dominates prefill.
+
+| | V100 32GB | MI50 32GB |
+|--|-----------|-----------|
+| Tensor cores | 640 (dedicated) | none |
+| FP16 peak (tensor) | 125 TFLOPS | ~13 TFLOPS (standard MAC) |
+| HBM2 bandwidth | 900 GB/s | 900 GB/s |
+| Prefill (compute-bound) | saturates tensor cores | limited to standard cores |
+| Decode (memory-bound) | bandwidth-limited | bandwidth-limited |
+
+In practice the 6x prefill gain reflects the combination of: (1) ~10x raw FP16 matmul throughput from tensor cores, (2) NVIDIA's cuBLAS/cuDNN kernels that fully exploit tensor core instruction throughput, and (3) the CUDA stack's fused attention kernels (FlashAttention) which are optimized for the V100's memory hierarchy. The MI50's ROCm path simply doesn't have an equivalent to tensor cores to saturate.
+
+For generation, the story is different: both cards are memory-bandwidth-bound at 900 GB/s, so the speedup is more modest (~2x) and comes from the CUDA stack's better memory access patterns, multi-token prediction, and kernel scheduling rather than raw FLOPS.
+
 ## What stayed
 
 The liquid cooling loop, chassis, and 10GbE networking are unchanged. The V100 PCIe cards drop into the same slots with a riser adapter. The custom cold plates that were built for the MI50 backplates needed a new 3D-printed bracket for the V100 form factor, but the loop itself is identical.
