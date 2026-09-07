@@ -32,20 +32,21 @@ Two of them side-by-side gives 64 GB total HBM2 — identical capacity to the MI
 2. **CUDA toolkit** — 12.x, no gfx906 hacks, no `HSA_OVERRIDE_GFX_VERSION` needed
 3. **PyTorch** — standard `pip install torch`, CUDA 12 build, `torch.cuda.device_count()` → 2
 4. **vLLM** — stock CUDA wheel, no ROCm fork. Tensor-parallel across both V100s with `--tensor-parallel-size 2`
-5. **Validation** — ran the same 70B Q4 model, confirmed parity or better on tokens/sec vs. the MI50 pair
+5. **Validation** — ran Qwen 3.8 27B (Q8_0) on both configs, measured real-world generation and prefill throughput
 
 ## Performance comparison
 
-| Metric | Dual MI50 (ROCm) | Dual V100 (CUDA) |
-|--------|-----------------|-----------------|
-| 70B Q4 KV cache throughput | ~18 tok/s | ~22 tok/s |
+| Metric (Qwen 3.8 27B Q8_0) | Dual MI50 (ROCm) | Dual V100 (CUDA) |
+|---------------------------|-----------------|-----------------|
+| Generation throughput | 19–22 tok/s | 35–45 tok/s |
+| Prefill throughput | ~200 tok/s | ~1200 tok/s |
 | Flash-attention | custom build | native |
 | vLLM version lag | 2–4 weeks behind | current |
 | TensorRT-LLM | unavailable | supported |
 | Driver complexity | ROCm 6.x + kernel modules | standard nvidia-driver |
 | Power draw (sustained) | ~300W | ~250W |
 
-The V100s are actually *cooler* and *faster* for the workload. The ROCm path was never the bottleneck in theory — it was the friction in practice that made iteration painful.
+That's a **~2x generation speedup** and a **6x prefill speedup** on the exact same model. The V100s are actually *cooler* and *faster* — the CUDA multi-token prediction path (speculative decoding) unlocks throughput that was simply unavailable on the ROCm stack. Night and day difference; did not expect that.
 
 ## What stayed
 
