@@ -13,6 +13,18 @@ interface NoteMeta {
   tags: string[];
 }
 
+interface ProjectMeta extends ProjectFrontmatter {
+  slug: string;
+}
+
+interface ActivityItem {
+  type: 'note' | 'project';
+  slug: string;
+  title: string;
+  date: string;
+  tags?: string[];
+}
+
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 const staggerContainer = {
@@ -48,17 +60,21 @@ function noteIcon(tag: string | undefined) {
   }
 }
 
-interface ProjectMeta extends ProjectFrontmatter {
-  slug: string;
-}
-
 export function RecentActivity({
   posts,
-  latestProject,
+  projects,
 }: {
   posts: NoteMeta[];
-  latestProject?: ProjectMeta | null;
+  projects: ProjectMeta[];
 }) {
+  // Merge notes and projects into a single date-sorted feed (newest first)
+  const allActivity: ActivityItem[] = [
+    ...posts.map((p) => ({ type: 'note' as const, slug: p.slug, title: p.title, date: p.date, tags: p.tags })),
+    ...projects.map((p) => ({ type: 'project' as const, slug: p.slug, title: p.title, date: p.date })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Show top 5 items
+  const topItems = allActivity.slice(0, 5);
 
   return (
     <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
@@ -76,20 +92,24 @@ export function RecentActivity({
         </div>
       </motion.div>
 
-      {/* Timeline feed */}
+      {/* Unified timeline feed */}
       <motion.div
         variants={staggerContainer}
         initial="initial"
         animate="animate"
         className="space-y-2"
       >
-        {/* Note entries */}
-        {posts.map((post) => {
-          const { icon, bg } = noteIcon(post.tags[0]);
+        {topItems.map((item) => {
+          const isProject = item.type === 'project';
+          const href = isProject ? `/projects/${item.slug}` : `/notes/${item.slug}`;
+          const { icon, bg } = isProject
+            ? { icon: <FolderGit2 className="size-4" />, bg: 'bg-accent-dim text-accent' }
+            : noteIcon(item.tags?.[0]);
+
           return (
-            <motion.div key={post.slug} variants={itemVariant}>
+            <motion.div key={`${item.type}-${item.slug}`} variants={itemVariant}>
               <Link
-                href={`/notes/${post.slug}`}
+                href={href}
                 className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
               >
                 <div className={iconStyles(bg)}>
@@ -97,12 +117,12 @@ export function RecentActivity({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors truncate">
-                    {post.title}
+                    {item.title}
                   </h3>
                   <p className="mt-0.5 font-mono text-xs text-zinc-600">
-                    {formatDate(post.date)}
+                    {formatDate(item.date)}
                     <span className="mx-1.5">·</span>
-                    Notes
+                    {isProject ? 'Project' : 'Notes'}
                   </p>
                 </div>
                 <ArrowRight className="size-4 shrink-0 text-zinc-700 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
@@ -111,32 +131,7 @@ export function RecentActivity({
           );
         })}
 
-        {/* Latest project entry */}
-        {latestProject && (
-          <motion.div variants={itemVariant}>
-            <Link
-              href={`/projects/${latestProject.slug}`}
-              className="group flex items-center gap-4 rounded-xl border border-zinc-800/60 bg-surface px-4 py-4 transition-all hover:border-zinc-700 hover:bg-surface-elevated"
-            >
-              <div className={iconStyles('bg-accent-dim text-accent')}>
-                <FolderGit2 className="size-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors truncate">
-                  {latestProject.title}
-                </h3>
-                <p className="mt-0.5 font-mono text-xs text-zinc-600">
-                  {formatDate(latestProject.date)}
-                  <span className="mx-1.5">·</span>
-                  Project Update
-                </p>
-              </div>
-              <ArrowRight className="size-4 shrink-0 text-zinc-700 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
-            </Link>
-          </motion.div>
-        )}
-
-        {/* Experience link */}
+        {/* Experience link (always at bottom) */}
         <motion.div variants={itemVariant}>
           <Link
             href="/experience"

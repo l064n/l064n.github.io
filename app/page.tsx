@@ -5,15 +5,14 @@ import { getAllPostsMetadata } from '@/lib/mdx';
 import { getAllProjectsMetadata } from '@/lib/projects';
 
 export default function HomePage() {
-  const recentNotes = getAllPostsMetadata()
-    .slice(0, 3)
-    .map((p) => ({ slug: p.slug, title: p.title, date: p.date, tags: p.tags }));
+  const allNotes = getAllPostsMetadata().map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    date: p.date,
+    tags: p.tags,
+  }));
 
   const allProjects = getAllProjectsMetadata();
-  const latestProject =
-    allProjects.length > 0
-      ? allProjects.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
-      : null;
 
   return (
     <>
@@ -21,7 +20,7 @@ export default function HomePage() {
       <div className="border-t border-neutral-800" />
       <StatusDashboard />
       <div className="border-t border-neutral-800" />
-      <RecentActivity posts={recentNotes} latestProject={latestProject} />
+      <RecentActivity posts={allNotes} projects={allProjects} />
     </>
   );
 }
