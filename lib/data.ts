@@ -18,7 +18,7 @@ export const siteConfig = {
   education: 'UC Santa Cruz (UCSC)',
   currentTitle: 'Systems Integration Engineer at Zoox',
   focus: 'Autonomous vehicle infrastructure and hardware orchestration',
-  workstation: 'Dual AMD Radeon Instinct MI50 · 64GB HBM2',
+  workstation: 'Dual NVIDIA Tesla V100 32GB · 64GB HBM2',
   osEnv: 'macOS · Nix-Darwin · Ghostty · Z Shell + Starship + Zoxide',
   knowledgeManagement: 'Obsidian (migrated from OneNote, 2017–present)',
   email: 'phillips.logan.sc@gmail.com',
@@ -30,7 +30,7 @@ export const statusMetrics: StatusMetric[] = [
   { label: 'location', value: 'Oakland, CA', indicator: 'online' },
   { label: 'role', value: 'Systems Integration Engineer, Zoox', indicator: 'online' },
   { label: 'focus', value: 'Autonomous vehicle infrastructure and hardware orchestration' },
-  { label: 'workstation', value: 'Dual AMD Radeon Instinct MI50 · 64GB HBM2' },
+  { label: 'workstation', value: 'Dual NVIDIA Tesla V100 32GB · 64GB HBM2' },
   { label: 'env', value: 'Nix-Darwin · Ghostty · Z Shell + Starship' },
 ];
 

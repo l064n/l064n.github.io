@@ -107,7 +107,7 @@ export function HeroSection() {
         >
           {[
             { label: 'Experience', value: '5+ years' },
-            { label: 'Workstation', value: 'Dual MI50' },
+            { label: 'Workstation', value: 'Dual V100' },
             { label: 'Stack', value: 'Full-stack' },
           ].map((stat) => (
             <div key={stat.label} className="border-l border-zinc-800 pl-3">

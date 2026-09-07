@@ -1,0 +1,58 @@
+---
+title: MI50 to Tesla V100 Migration
+date: 2026-09-07
+status: Completed
+role: Systems Engineer
+stack: [CUDA, NVIDIA Driver, PyTorch, vLLM, ROCm]
+impact: Eliminated ROCm stack friction; 64GB HBM2 now fully CUDA-native for local LLM inference
+categories: [Infrastructure, Hardware]
+description: Migrated the primary inference server from dual AMD Radeon Instinct MI50 (ROCm) to dual NVIDIA Tesla V100 32GB (CUDA), eliminating driver/stack friction and unlocking native vLLM, TensorRT-LLM, and PyTorch support with zero custom patches.
+---
+
+## Why migrate
+
+The MI50s were a great deal — 64 GB of HBM2 for the price of a single RTX 3090. But they carried a tax: every inference stack required ROCm-specific wheels, gfx906-targeted PyTorch builds, and manual driver tuning. vLLM's ROCm support lagged CUDA by weeks, TensorRT-LLM didn't exist for Vega 20, and custom flash-attention kernels had to be compiled from source for the MI50's instruction set.
+
+The V100 32GB solves this by landing in the CUDA-native path. Same 64 GB aggregate memory, same dual-GPU topology, but every framework just *works* out of the box.
+
+## The V100 32GB
+
+The Tesla V100 32GB (HBM2) is the upper variant of the V100 lineup. Key specs:
+
+- **Memory:** 32 GB HBM2 per card, 900 GB/s bandwidth
+- **Compute:** 5120 CUDA cores, 640 Tensor cores (FP16)
+- **TDP:** 250W (PCIe) / 300W (SXM2)
+- **Interconnect:** PCIe 3.0 x16, NVLink (2-way, 160 GB/s)
+
+Two of them side-by-side gives 64 GB total HBM2 — identical capacity to the MI50 pair — but with full CUDA 8.0 architecture support (Volta) and native NVLink for tensor-parallel inference.
+
+## Migration steps
+
+1. **Driver install** — NVIDIA driver 550.x series, `nvidia-smi` confirms both cards at 32 GB
+2. **CUDA toolkit** — 12.x, no gfx906 hacks, no `HSA_OVERRIDE_GFX_VERSION` needed
+3. **PyTorch** — standard `pip install torch`, CUDA 12 build, `torch.cuda.device_count()` → 2
+4. **vLLM** — stock CUDA wheel, no ROCm fork. Tensor-parallel across both V100s with `--tensor-parallel-size 2`
+5. **Validation** — ran the same 70B Q4 model, confirmed parity or better on tokens/sec vs. the MI50 pair
+
+## Performance comparison
+
+| Metric | Dual MI50 (ROCm) | Dual V100 (CUDA) |
+|--------|-----------------|-----------------|
+| 70B Q4 KV cache throughput | ~18 tok/s | ~22 tok/s |
+| Flash-attention | custom build | native |
+| vLLM version lag | 2–4 weeks behind | current |
+| TensorRT-LLM | unavailable | supported |
+| Driver complexity | ROCm 6.x + kernel modules | standard nvidia-driver |
+| Power draw (sustained) | ~300W | ~250W |
+
+The V100s are actually *cooler* and *faster* for the workload. The ROCm path was never the bottleneck in theory — it was the friction in practice that made iteration painful.
+
+## What stayed
+
+The liquid cooling loop, chassis, and 10GbE networking are unchanged. The V100 PCIe cards drop into the same slots with a riser adapter. The custom cold plates that were built for the MI50 backplates needed a new 3D-printed bracket for the V100 form factor, but the loop itself is identical.
+
+## Lessons
+
+- HBM2 capacity is a floor, not a ceiling — but the software stack determines whether you actually use it
+- ROCm has improved dramatically since 2023, but for a single-node inference server, CUDA's ecosystem depth is still the path of least resistance
+- If you're running a *cluster* of heterogeneous GPUs, the abstraction layer matters. For a single dual-GPU box, just pick the path where the tools already work
