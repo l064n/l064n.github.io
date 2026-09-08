@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-08T16:50:02Z",
+  "generatedAt": "2026-09-08T16:55:02Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -20,7 +20,7 @@
           "temp": 57,
           "memUsed": 26.4,
           "memTotal": 32.0,
-          "power": 51.6
+          "power": 51.4
         }
       ]
     },
