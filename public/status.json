@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T12:35:03Z",
+  "generatedAt": "2026-09-12T12:40:02Z",
   "nodes": [
     {
       "name": "big-brain2",
@@ -9,18 +9,18 @@
         {
           "name": "Tesla V100-PCIE-32GB",
           "util": 0,
-          "temp": 40,
+          "temp": 37,
           "memUsed": 27.8,
           "memTotal": 32.0,
-          "power": 38.1
+          "power": 37.5
         },
         {
           "name": "Tesla V100-PCIE-32GB",
           "util": 0,
-          "temp": 50,
+          "temp": 44,
           "memUsed": 27.8,
           "memTotal": 32.0,
-          "power": 39.9
+          "power": 38.3
         }
       ]
     },
