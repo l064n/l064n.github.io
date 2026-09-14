@@ -1,0 +1,62 @@
+---
+title: Brainlink — Android Client for Self-Hosted LLMs
+date: 2026-09-14
+status: Active
+role: Full Stack Developer
+stack: [Kotlin, Jetpack Compose, Room, OkHttp, DataStore, Foreground Services, Google Play]
+impact: A native phone client for self-hosted models — private by construction, with background generation that survives app death and multi-server switching
+categories: [Infrastructure, Mobile]
+description: Brainlink is a native Android app that turns a phone into a client for any OpenAI-compatible model you host on your own hardware — streaming chat, agentic web/image tools, vision, and foreground-service background generation, all over your LAN with zero cloud.
+---
+
+## Why build it
+
+My inference cluster (RTX 3090, dual V100, and a Jetson AGX Orin) runs OpenAI-compatible servers, but I wanted to use them *on my phone* — and I didn't want a cloud wrapper in between. Every hosted-app option either sends prompts to a third-party server or hardcodes a provider. Brainlink is the opposite: a thin native client that talks **directly to my own endpoint over LAN (or Tailscale)**. No account, no API key, no analytics. The only network egress is the box I point it at.
+
+It's a companion to the [local LLM infrastructure](/projects/local-llm-infrastructure) and the [MI50 → V100 migration](/projects/mi50-to-v100-migration) — those projects make the models fast; Brainlink makes them reachable from my pocket.
+
+## Stack
+
+- **Kotlin + Jetpack Compose** (Material 3, dark-first with a light theme) — single activity, minSdk 26 / target 36
+- **OkHttp + SSE** for token-by-token streaming from `/v1/chat/completions`
+- **Room** for local, on-device conversation history
+- **DataStore** for connection settings
+- **Foreground service** for background generation
+- Pure Android — **no WebView, no RN/Flutter**, so the whole thing is a small native artifact
+
+## Features that mattered
+
+- **Streaming chat** with a stop button that keeps the partial answer, timestamps, and clickable URLs.
+- **Agentic tool use** — the model can call in-app `web_search` and `search_images` tools, so it can actually look things up and pull in real image links rather than hallucinating. A plain "quick" mode is one toggle away.
+- **Background generation** — the headline feature. Generation runs in a **foreground service**, so the model keeps thinking when I press home, switch apps, or the Activity is killed. A persistent notification ("Brainlink: Thinking…") updates live with the agent's progress. The reply is written to Room *by the service*, so it's the source of truth — the answer is there when I come back even if I force-stopped mid-run.
+- **Saved servers** — multiple named backends (home vLLM, work llama.cpp, a Tailscale box) as profiles, switchable in one tap. Each profile carries its own host/port/model/prompt/mode.
+- **Vision** — attach a photo from gallery or camera; resized to ≤1024px JPEG and sent as a base64 `image_url` in OpenAI multimodal format.
+- **Voice input** via the platform speech recognizer (no server, no key).
+
+## The interesting problem: surviving backgrounding
+
+The naive approach — run the LLM loop in the Activity or a ViewModel — dies the instant the OS reclaims the UI process, which on Android happens with alarming regularity. The fix is to move the work into a **foreground service** with a persistent notification. That gives it a separate lifecycle and a visible handle the OS won't silently kill.
+
+The subtle part is bridging state between the service and the UI:
+
+- The UI *stages* a request (chat id, the settings snapshot, the message list) into a **process-wide hub** and starts the service.
+- The service runs the agent/streaming loop, posts live progress (e.g. "🌐 Looking up…") back through that hub as a `StateFlow` the Compose UI collects — so the bubble and the notification update in lockstep.
+- On completion the service **persists the finished message straight to Room** and dismisses the notification. The UI reloads from Room, so the answer is there regardless of what happened to the Activity in the meantime.
+
+I verified this on-device: service alive 22+ seconds while backgrounded, an agentic run completed web_search + search_images, and a ~975-token answer appeared in both Room and the UI after the app had been backgrounded.
+
+## Shipping it
+
+- **Release builds** are signed AABs (`versionCode` bumped per release) uploaded to Google Play. I wrote a small `tools/release-to-play.py` that drives the `androidpublisher` v3 API (edit → upload bundle → update track → commit) with auto-rollback, so a release is one command.
+- Kept the **service-account key and keystore git-ignored**; only the signed artifacts in `dist/` are tracked.
+- Iterated the launcher icon and store screenshots in-repo (`tools/make_screenshots.py` renders the Compose UI to PNGs).
+
+## Lessons
+
+- On Android, "keep working in the background" is a **lifecycle** problem, not a threading problem — you can't fix it with a coroutine, you have to move the work into a component with the right lifecycle (a foreground service) and bridge state explicitly.
+- Making the **database the source of truth** (service writes to Room, UI reads from Room) is what makes background completion robust — you don't depend on the UI process being alive to receive the result.
+- For a self-hosted client, the entire trust model collapses to "who do I point at," so the whole app can stay small, native, and keyless. That's a feature, not a shortcut.
+
+## Status
+
+Live on the internal testing track (v1.3, saved servers). Works against llama.cpp `llama-server`, vLLM, and Ollama's OpenAI-compat endpoint on my cluster.

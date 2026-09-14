@@ -7,7 +7,7 @@ interface FilterBarProps {
   onChange: (category: string) => void;
 }
 
-const categories = ['All', 'Infrastructure', 'Restoration', 'Automotive', 'Fabrication'] as const;
+const categories = ['All', 'Infrastructure', 'Mobile', 'Restoration', 'Automotive', 'Fabrication'] as const;
 
 export function FilterBar({ active, onChange }: FilterBarProps) {
   return (
